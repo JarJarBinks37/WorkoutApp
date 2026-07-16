@@ -83,8 +83,13 @@
     color:var(--fg); font-size:1.2rem; font-weight:700;
     display:flex; align-items:center; justify-content:center; position:relative; }
   .cal-day.empty{ background:transparent; border-color:transparent; visibility:hidden; }
-  .cal-day.scheduled{ background:rgba(90,169,255,0.10); }
+  .cal-day.scheduled{ background:rgba(90,169,255,0.22); border:2px solid rgba(90,169,255,0.6); color:#dceeff; }
+  .cal-day.scheduled::after{
+    content:''; position:absolute; bottom:7px; left:50%; transform:translateX(-50%);
+    width:5px; height:5px; border-radius:50%; background:var(--accent-ready);
+    box-shadow:0 0 6px 1px rgba(90,169,255,0.8); }
   .cal-day.done{ background:var(--accent-exercise); color:#04140d; border-color:var(--accent-exercise); }
+  .cal-day.done::after{ content:none; }
   .cal-day.today{ box-shadow:0 0 0 2px var(--accent-ready) inset; }
   .cal-day:active{ background:var(--bg-panel-2); }
   .cal-day.done:active{ opacity:0.85; }
