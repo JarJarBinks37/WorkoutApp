@@ -203,11 +203,17 @@
     align-self:center; background:var(--bg-panel); border:2px solid var(--accent-exercise); color:var(--accent-exercise);
     font-weight:800; font-size:1.1rem; padding:10px 24px; border-radius:999px; margin:10px 0 4px; }
   .body-map-wrap{ display:flex; justify-content:center; padding:6px 0 16px; }
-  .body-map{ overflow:visible; }
-  .bm-zone{ fill:rgba(90,169,255,0.22); stroke:rgba(90,169,255,0.55); stroke-width:2; transition:fill 0.4s ease, stroke 0.4s ease; }
-  .body-map line.bm-zone{ fill:none; }
-  .bm-zone.hit{ fill:rgba(248,113,113,0.34); stroke:rgba(248,113,113,0.9); }
-  .body-map line.bm-zone.hit{ fill:none; }
+  .body-map{ overflow:visible; background:radial-gradient(circle at 50% 30%, rgba(90,169,255,0.06), transparent 70%); border-radius:24px; }
+  .bm-silhouette path, .bm-silhouette ellipse{ fill:rgba(90,169,255,0.07); stroke:rgba(90,169,255,0.25); stroke-width:1.5; }
+  .bm-spine{ stroke:rgba(90,169,255,0.45); fill:none; }
+  .bm-joint{ fill:rgba(90,169,255,0.75); }
+  .bm-head{ fill:rgba(90,169,255,0.75); }
+  .bm-zone{ stroke:rgba(90,169,255,0.7); fill:none; transition:fill 0.4s ease, stroke 0.4s ease; }
+  .bm-core, .bm-hips{ fill:rgba(90,169,255,0.14); }
+  .bm-shoulders{ fill:rgba(90,169,255,0.55); stroke:none; }
+  .bm-zone.hit{ stroke:rgba(248,113,113,0.95); }
+  .bm-core.hit, .bm-hips.hit{ fill:rgba(248,113,113,0.3); }
+  .bm-shoulders.hit{ fill:rgba(248,113,113,0.95); stroke:none; }
   .overview-list{ display:flex; flex-direction:column; }
   .overview-item{ display:flex; justify-content:space-between; align-items:baseline; padding:14px 4px; border-bottom:1px solid var(--border); }
   .overview-item .oi-name{ font-weight:700; font-size:1rem; }
@@ -1057,22 +1063,53 @@ const GROUP_TO_BODYZONE = {
 
 const BODY_MAP_SVG =
   '<svg class="body-map" viewBox="0 0 200 380" width="170" height="323" aria-hidden="true">' +
-    '<defs><filter id="bmGlow" x="-60%" y="-60%" width="220%" height="220%">' +
-      '<feGaussianBlur stdDeviation="5" result="blur"/>' +
-      '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
-    '</filter></defs>' +
+    '<defs>' +
+      '<pattern id="bmGrid" width="18" height="18" patternUnits="userSpaceOnUse">' +
+        '<path d="M18 0H0V18" fill="none" stroke="rgba(90,169,255,0.08)" stroke-width="1"/>' +
+      '</pattern>' +
+      '<filter id="bmGlow" x="-60%" y="-60%" width="220%" height="220%">' +
+        '<feGaussianBlur stdDeviation="4" result="blur"/>' +
+        '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+      '</filter>' +
+    '</defs>' +
+    '<rect x="0" y="0" width="200" height="380" rx="24" fill="url(#bmGrid)"/>' +
+    '<g class="bm-silhouette">' +
+      '<ellipse cx="100" cy="34" rx="24" ry="28"/>' +
+      '<path d="M77 58 Q100 48 123 58 L136 92 Q138 130 130 196 L126 224 L74 224 L70 196 Q62 130 64 92 Z"/>' +
+      '<path d="M77 92 Q48 98 34 178 L42 182 Q56 118 82 100 Z"/>' +
+      '<path d="M123 92 Q152 98 166 178 L158 182 Q144 118 118 100 Z"/>' +
+      '<path d="M74 224 Q56 268 60 346 L82 346 Q82 272 92 226 Z"/>' +
+      '<path d="M126 224 Q144 268 140 346 L118 346 Q118 272 108 226 Z"/>' +
+    '</g>' +
     '<g filter="url(#bmGlow)">' +
-      '<line class="bm-zone bm-legs" x1="85" y1="216" x2="75" y2="345" stroke-width="24" stroke-linecap="round"/>' +
-      '<line class="bm-zone bm-legs" x1="115" y1="216" x2="125" y2="345" stroke-width="24" stroke-linecap="round"/>' +
-      '<rect class="bm-zone bm-hips" x="72" y="196" width="56" height="26" rx="13"/>' +
-      '<line class="bm-zone bm-arms" x1="40" y1="90" x2="30" y2="180" stroke-width="16" stroke-linecap="round"/>' +
-      '<line class="bm-zone bm-arms" x1="160" y1="90" x2="170" y2="180" stroke-width="16" stroke-linecap="round"/>' +
-      '<rect class="bm-zone bm-core" x="76" y="134" width="48" height="60" rx="14"/>' +
-      '<rect class="bm-zone bm-chest" x="68" y="76" width="64" height="56" rx="16"/>' +
-      '<line class="bm-zone bm-shoulders" x1="66" y1="84" x2="40" y2="90" stroke-width="20" stroke-linecap="round"/>' +
-      '<line class="bm-zone bm-shoulders" x1="134" y1="84" x2="160" y2="90" stroke-width="20" stroke-linecap="round"/>' +
-      '<rect class="bm-zone bm-traps" x="70" y="58" width="60" height="18" rx="9"/>' +
-      '<ellipse class="bm-zone bm-head" cx="100" cy="34" rx="22" ry="26"/>' +
+      '<line class="bm-spine" x1="100" y1="62" x2="100" y2="200" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 6"/>' +
+      '<path class="bm-zone bm-traps" d="M72 66 Q100 54 128 66" fill="none" stroke-width="4" stroke-linecap="round"/>' +
+      '<ellipse class="bm-zone bm-shoulders" cx="68" cy="86" rx="7" ry="9"/>' +
+      '<ellipse class="bm-zone bm-shoulders" cx="132" cy="86" rx="7" ry="9"/>' +
+      '<ellipse class="bm-zone bm-chest" cx="100" cy="106" rx="27" ry="32" fill="none" stroke-width="3"/>' +
+      '<path class="bm-zone bm-core" d="M78 142 Q100 150 122 142 L120 192 Q100 200 80 192 Z" stroke-width="2.5"/>' +
+      '<path class="bm-zone bm-hips" d="M76 198 Q100 212 124 198 L120 222 Q100 228 80 222 Z" stroke-width="2.5"/>' +
+      '<g class="bm-zone bm-arms">' +
+        '<line x1="68" y1="95" x2="46" y2="150" stroke-width="4" stroke-linecap="round"/>' +
+        '<line x1="46" y1="150" x2="38" y2="196" stroke-width="4" stroke-linecap="round"/>' +
+        '<line x1="132" y1="95" x2="154" y2="150" stroke-width="4" stroke-linecap="round"/>' +
+        '<line x1="154" y1="150" x2="162" y2="196" stroke-width="4" stroke-linecap="round"/>' +
+      '</g>' +
+      '<g class="bm-zone bm-legs">' +
+        '<line x1="88" y1="224" x2="80" y2="286" stroke-width="5" stroke-linecap="round"/>' +
+        '<line x1="80" y1="286" x2="76" y2="346" stroke-width="5" stroke-linecap="round"/>' +
+        '<line x1="112" y1="224" x2="120" y2="286" stroke-width="5" stroke-linecap="round"/>' +
+        '<line x1="120" y1="286" x2="124" y2="346" stroke-width="5" stroke-linecap="round"/>' +
+      '</g>' +
+      '<circle class="bm-joint" cx="68" cy="95" r="3"/>' +
+      '<circle class="bm-joint" cx="132" cy="95" r="3"/>' +
+      '<circle class="bm-joint" cx="46" cy="150" r="2.5"/>' +
+      '<circle class="bm-joint" cx="154" cy="150" r="2.5"/>' +
+      '<circle class="bm-joint" cx="88" cy="224" r="3"/>' +
+      '<circle class="bm-joint" cx="112" cy="224" r="3"/>' +
+      '<circle class="bm-joint" cx="80" cy="286" r="2.5"/>' +
+      '<circle class="bm-joint" cx="120" cy="286" r="2.5"/>' +
+      '<circle class="bm-head" cx="100" cy="34" r="9"/>' +
     '</g>' +
   '</svg>';
 
