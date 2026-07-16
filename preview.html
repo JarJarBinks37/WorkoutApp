@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Preview — Kettlebell HIIT Timer</title>
+<style>
+  html,body{
+    margin:0; padding:0; height:100%; background:#111417;
+    display:flex; align-items:center; justify-content:center;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  .phone-frame{
+    width:390px; height:844px; background:#0b0b0d; border-radius:56px; padding:14px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.55), 0 0 0 2px #2a2c30;
+    position:relative; flex:0 0 auto;
+  }
+  .phone-screen{
+    width:100%; height:100%; border-radius:42px; overflow:hidden; background:#000; position:relative;
+  }
+  .phone-screen iframe{ width:100%; height:100%; border:none; display:block; }
+  .notch{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:126px; height:30px; background:#0b0b0d; border-radius:16px; z-index:10;
+  }
+  .toolbar{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:14px;
+    color:#8b98a5; font-size:13px;
+  }
+  .toolbar button{
+    background:#1a1d21; border:1px solid #2a2c30; color:#f4f7fa;
+    padding:8px 16px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .toolbar button:hover{ background:#22262b; }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="notch"></div>
+    <div class="phone-screen">
+      <iframe src="index.html" id="previewFrame"></iframe>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button id="refreshBtn">&#8635; Refresh</button>
+    <span>or press &#8984;R after updates</span>
+  </div>
+  <script>
+    document.getElementById('refreshBtn').addEventListener('click', function(){
+      document.getElementById('previewFrame').src = 'index.html?t=' + Date.now();
+    });
+  </script>
+</body>
+</html>

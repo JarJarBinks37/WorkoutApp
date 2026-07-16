@@ -83,7 +83,7 @@
     color:var(--fg); font-size:1.2rem; font-weight:700;
     display:flex; align-items:center; justify-content:center; position:relative; }
   .cal-day.empty{ background:transparent; border-color:transparent; visibility:hidden; }
-  .cal-day.scheduled{ background:rgba(90,169,255,0.10); }
+  .cal-day.scheduled{ background:rgba(251,191,36,0.18); }
   .cal-day.done{ background:var(--accent-exercise); color:#04140d; border-color:var(--accent-exercise); }
   .cal-day.today{ box-shadow:0 0 0 2px var(--accent-ready) inset; }
   .cal-day:active{ background:var(--bg-panel-2); }
@@ -175,6 +175,23 @@
   .settings-danger-btn:active{ opacity:0.8; }
   .settings-about{ text-align:center; color:var(--fg-dim); font-size:0.82rem; line-height:1.5; margin-top:4px; }
 
+  /* ---------- GLOBAL CONFIRM MODAL (replaces native confirm(), unreliable in standalone PWAs) ---------- */
+  .confirm-modal{
+    position:absolute; inset:0; z-index:30; display:none;
+    align-items:center; justify-content:center; padding:24px;
+    background:rgba(6,9,12,0.75);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+  .confirm-modal.open{ display:flex; }
+  .confirm-card{
+    width:100%; max-width:340px; background:var(--bg-panel); border:2px solid var(--border);
+    border-radius:22px; padding:26px 22px 20px; display:flex; flex-direction:column; gap:14px; text-align:center; }
+  .confirm-title{ font-size:1.15rem; font-weight:800; }
+  .confirm-message{ color:var(--fg-dim); font-size:0.92rem; line-height:1.5; }
+  .confirm-actions{ display:flex; gap:10px; margin-top:6px; }
+  .confirm-actions button{ flex:1; padding:14px 0; border-radius:12px; font-weight:800; font-size:0.95rem; }
+  .confirm-btn-secondary{ background:var(--bg); border:2px solid var(--border); color:var(--fg); }
+  .confirm-btn-danger{ background:rgba(248,113,113,0.16); border:2px solid rgba(248,113,113,0.4); color:var(--accent-danger); }
+
   /* ---------- DAY OVERVIEW (specific workout preview) ---------- */
   .overview-body{ flex:1; min-height:0; display:flex; flex-direction:column; padding:10px 20px 0; }
   .overview-scroll{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; }
@@ -214,7 +231,9 @@
   .dot.filled{ background:var(--fg-dim); }
   .dot.current{ background:var(--fg); width:15px; height:15px; }
 
-  .stage{ position:relative; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10px 20px; gap:20px; min-height:0; }
+  .stage{ position:relative; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10px 20px; gap:20px; min-height:0;
+    transition:opacity 0.3s ease, filter 0.3s ease; }
+  #screen-workout.is-paused .stage{ opacity:0.4; filter:grayscale(0.6); }
   .phase-label{ font-size:1.1rem; font-weight:800; letter-spacing:0.16em; text-transform:uppercase; }
   .phase-ready .phase-label{ color:var(--accent-ready); }
   .phase-exercise .phase-label{ color:var(--accent-exercise); }
@@ -472,6 +491,17 @@
     </div>
   </section>
 
+  <div class="confirm-modal" id="confirmModal">
+    <div class="confirm-card">
+      <div class="confirm-title" id="confirmTitle">Title</div>
+      <div class="confirm-message" id="confirmMessage">Message</div>
+      <div class="confirm-actions">
+        <button id="confirmCancelBtn" class="confirm-btn-secondary">Cancel</button>
+        <button id="confirmOkBtn" class="confirm-btn-danger">Confirm</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -570,29 +600,39 @@ function isoDate(d){
 }
 
 /* ================= AUTO SCHEDULE ================= */
-// The programme runs Mon/Tue/Thu/Fri = Day 1-4 of whichever week is current, and
-// silently restarts at Week 1 once Week 6 finishes, forever, based purely on date math.
-const WORKOUT_WEEKDAYS = { 1:1, 2:2, 4:3, 5:4 }; // JS getDay(): Mon=1,Tue=2,Thu=4,Fri=5 -> programme day slot
+// The programme trains 4 days/week in the same Mon/Tue/Thu/Fri rhythm (2 on, 1 off, 2 on, 2 off),
+// but that 4-day pattern rotates to start on whatever weekday the plan actually began on, so
+// "Day 1" always lands on the day you started — not forced onto the next Monday.
+const BASE_WEEKDAY_ORDER = [1,2,4,5]; // Mon,Tue,Thu,Fri in calendar order
 
-function mostRecentMonday(date){
-  const dow = date.getDay(); // 0=Sun..6=Sat
-  const diff = (dow + 6) % 7; // days since most recent Monday
-  const monday = new Date(date);
-  monday.setDate(date.getDate() - diff);
-  monday.setHours(0,0,0,0);
-  return monday;
+function mostRecentWeekday(date, targetDow){
+  const dow = date.getDay();
+  const diff = (dow - targetDow + 7) % 7;
+  const result = new Date(date);
+  result.setDate(date.getDate() - diff);
+  result.setHours(0,0,0,0);
+  return result;
+}
+
+// Rotates the 4 weekly training weekdays so `startDow` becomes Day 1. If the plan started on a
+// day outside the normal Mon/Tue/Thu/Fri rhythm (e.g. restarted on a Saturday), falls back to
+// the original unrotated Mon=1/Tue=2/Thu=3/Fri=4 mapping.
+function getWorkoutWeekdayMap(startDow){
+  const idx = BASE_WEEKDAY_ORDER.indexOf(startDow);
+  const rotated = idx === -1 ? BASE_WEEKDAY_ORDER : BASE_WEEKDAY_ORDER.slice(idx).concat(BASE_WEEKDAY_ORDER.slice(0, idx));
+  const map = {};
+  rotated.forEach((dow, i)=>{ map[dow] = i + 1; });
+  return map;
 }
 
 // Bumping SCHEDULE_VERSION forces a one-time recompute of the stored start date below,
 // even for a browser that already cached an older anchor from before this change.
-const SCHEDULE_VERSION = 2;
+const SCHEDULE_VERSION = 4;
 function getProgramStart(){
   const storedVersion = parseInt(localStorage.getItem('hiitScheduleVersion') || '0', 10);
   let s = localStorage.getItem('hiitProgramStart');
   if(!s || storedVersion < SCHEDULE_VERSION){
-    const nextMonday = mostRecentMonday(new Date());
-    nextMonday.setDate(nextMonday.getDate() + 7);
-    s = isoDate(nextMonday);
+    s = isoDate(new Date()); // Day 1 = today, whatever weekday that is
     localStorage.setItem('hiitProgramStart', s);
     localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
   }
@@ -602,15 +642,19 @@ function getProgramStart(){
 function getScheduledWorkout(dateStr){
   const [y,m,d] = dateStr.split('-').map(Number);
   const date = new Date(y, m-1, d);
-  const daySlot = WORKOUT_WEEKDAYS[date.getDay()];
-  if(!daySlot) return null; // rest day (Wed/Sat/Sun)
 
   const [sy,sm,sd] = getProgramStart().split('-').map(Number);
-  const startMonday = new Date(sy, sm-1, sd);
-  const thisMonday = mostRecentMonday(date);
+  const startDate = new Date(sy, sm-1, sd);
+  const startDow = startDate.getDay();
+
+  const daySlot = getWorkoutWeekdayMap(startDow)[date.getDay()];
+  if(!daySlot) return null; // rest day
+
+  const thisAnchor = mostRecentWeekday(date, startDow);
+  const startAnchor = mostRecentWeekday(startDate, startDow); // = startDate itself
 
   const msPerDay = 24*60*60*1000;
-  const weeksElapsed = Math.round((thisMonday - startMonday) / (7*msPerDay));
+  const weeksElapsed = Math.round((thisAnchor - startAnchor) / (7*msPerDay));
   if(weeksElapsed < 0) return null; // before programme start
 
   const cycleWeek = ((weeksElapsed % 6) + 6) % 6;
@@ -621,19 +665,13 @@ function getScheduledWorkout(dateStr){
 // itself is a workout day — used for the profile progress wheel.
 function getCurrentProgramWeek(){
   const [sy,sm,sd] = getProgramStart().split('-').map(Number);
-  const startMonday = new Date(sy, sm-1, sd);
-  const thisMonday = mostRecentMonday(new Date());
+  const startDate = new Date(sy, sm-1, sd);
+  const startDow = startDate.getDay();
+  const thisAnchor = mostRecentWeekday(new Date(), startDow);
   const msPerDay = 24*60*60*1000;
-  const weeksElapsed = Math.round((thisMonday - startMonday) / (7*msPerDay));
+  const weeksElapsed = Math.round((thisAnchor - startDate) / (7*msPerDay));
   if(weeksElapsed < 0) return null; // programme hasn't started yet
   return (((weeksElapsed % 6) + 6) % 6) + 1;
-}
-
-function nearestMonday(date){
-  const prev = mostRecentMonday(date);
-  const next = new Date(prev);
-  next.setDate(next.getDate() + 7);
-  return (date - prev) <= (next - date) ? prev : next;
 }
 
 /* ================= EXERCISE LIBRARY (for the Exercises tab) ================= */
@@ -860,6 +898,11 @@ const els = {
   toggleSound: document.getElementById('toggleSound'),
   toggleVibrate: document.getElementById('toggleVibrate'),
   btnRestartPlan: document.getElementById('btnRestartPlan'),
+  confirmModal: document.getElementById('confirmModal'),
+  confirmTitle: document.getElementById('confirmTitle'),
+  confirmMessage: document.getElementById('confirmMessage'),
+  confirmOkBtn: document.getElementById('confirmOkBtn'),
+  confirmCancelBtn: document.getElementById('confirmCancelBtn'),
   btnOverviewBack: document.getElementById('btnOverviewBack'),
   overviewDate: document.getElementById('overviewDate'),
   overviewBody: document.getElementById('overviewBody'),
@@ -1210,15 +1253,36 @@ function openSettings(){
 function closeSettings(){
   els.settingsModal.classList.remove('open');
 }
+
+/* ---------- GLOBAL CONFIRM MODAL ---------- */
+// Replaces native confirm(), which is unreliable (can silently no-op) in standalone iOS PWAs.
+let pendingConfirmAction = null;
+function showConfirm(title, message, confirmLabel, onConfirm){
+  els.confirmTitle.textContent = title;
+  els.confirmMessage.textContent = message;
+  els.confirmOkBtn.textContent = confirmLabel;
+  pendingConfirmAction = onConfirm;
+  els.confirmModal.classList.add('open');
+}
+function closeConfirm(){
+  els.confirmModal.classList.remove('open');
+  pendingConfirmAction = null;
+}
+
 function restartPlan(){
-  const ok = confirm('Restart the 6-week plan? This clears your workout history and resets Week 1 Day 1 to start on the day closest to today.');
-  if(!ok) return;
-  const newStart = isoDate(nearestMonday(new Date()));
-  localStorage.setItem('hiitProgramStart', newStart);
-  localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
-  saveProgress({});
-  closeSettings();
-  renderProfile();
+  showConfirm(
+    'Restart 6-Week Plan?',
+    'This clears your workout history and resets Week 1 Day 1 to start today.',
+    'Restart Plan',
+    ()=>{
+      const newStart = isoDate(new Date());
+      localStorage.setItem('hiitProgramStart', newStart);
+      localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
+      saveProgress({});
+      closeSettings();
+      renderProfile();
+    }
+  );
 }
 
 /* ---------- AUDIO ---------- */
@@ -1483,6 +1547,7 @@ function togglePause(){
     session.remainingMs = Math.max(0, session.endTime - Date.now());
     session.paused = true;
   }
+  els.workout.classList.toggle('is-paused', session.paused);
 }
 
 function skip(direction){
@@ -1520,12 +1585,17 @@ function statRow(label, value){
 
 function exitWorkout(){
   if(!session) return;
-  const ok = confirm('End this workout? Progress for this session won’t be saved as complete.');
-  if(!ok) return;
-  releaseWakeLock();
-  session = null;
-  renderCalendar();
-  showScreen('calendar');
+  showConfirm(
+    'End Workout?',
+    'Progress for this session won’t be saved as complete.',
+    'End Workout',
+    ()=>{
+      releaseWakeLock();
+      session = null;
+      renderCalendar();
+      showScreen('calendar');
+    }
+  );
 }
 
 /* ---------- VIEWPORT HEIGHT FIX (iOS) ---------- */
@@ -1560,6 +1630,13 @@ els.settingsModal.addEventListener('click', (e)=>{ if(e.target === els.settingsM
 els.toggleSound.addEventListener('click', ()=>{ setSoundEnabled(!soundEnabled()); renderSettingsToggles(); });
 els.toggleVibrate.addEventListener('click', ()=>{ setVibrateEnabled(!vibrateEnabled()); renderSettingsToggles(); });
 els.btnRestartPlan.addEventListener('click', restartPlan);
+els.confirmCancelBtn.addEventListener('click', closeConfirm);
+els.confirmModal.addEventListener('click', (e)=>{ if(e.target === els.confirmModal) closeConfirm(); });
+els.confirmOkBtn.addEventListener('click', ()=>{
+  const action = pendingConfirmAction;
+  closeConfirm();
+  if(action) action();
+});
 els.btnOverviewBack.addEventListener('click', ()=>{ renderCalendar(); showScreen('calendar'); });
 els.tabCalendar.addEventListener('click', ()=>{ renderCalendar(); showScreen('calendar'); });
 els.tabExercises.addEventListener('click', ()=> showScreen('exercises'));
