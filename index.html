@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KB HIIT">
+<meta name="theme-color" content="#0a0e12">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23131c27'/%3E%3Cstop offset='1' stop-color='%230a0e12'/%3E%3C/linearGradient%3E%3ClinearGradient id='kb' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%2322b989'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23bg)'/%3E%3Cpath d='M64 70 a26 26 0 0 1 52 0' fill='none' stroke='url(%23kb)' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='84' y='66' width='12' height='18' fill='url(%23kb)'/%3E%3Ccircle cx='90' cy='126' r='42' fill='url(%23kb)'/%3E%3Cellipse cx='77' cy='111' rx='14' ry='9' fill='%23ffffff' opacity='0.18'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180' width='180' height='180'%3E%3Cdefs%3E%3ClinearGradient id='bg2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23131c27'/%3E%3Cstop offset='1' stop-color='%230a0e12'/%3E%3C/linearGradient%3E%3ClinearGradient id='kb2' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%235eead4'/%3E%3Cstop offset='1' stop-color='%2322b989'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23bg2)'/%3E%3Cpath d='M64 70 a26 26 0 0 1 52 0' fill='none' stroke='url(%23kb2)' stroke-width='13' stroke-linecap='round'/%3E%3Crect x='84' y='66' width='12' height='18' fill='url(%23kb2)'/%3E%3Ccircle cx='90' cy='126' r='42' fill='url(%23kb2)'/%3E%3Cellipse cx='77' cy='111' rx='14' ry='9' fill='%23ffffff' opacity='0.18'/%3E%3C/svg%3E">
+<title>Kettlebell HIIT Timer</title>
+<style>
+  :root{
+    --vh: 1vh;
+    --bg: #0a0e12;
+    --bg-panel: #131a22;
+    --bg-panel-2: #1a2330;
+    --fg: #f4f7fa;
+    --fg-dim: #8b98a5;
+    --accent-ready: #5aa9ff;
+    --accent-exercise: #34d399;
+    --accent-rest: #fbbf24;
+    --accent-danger: #f87171;
+    --border: #2a3644;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; }
+  html,body{
+    margin:0; padding:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    height:100%; overflow:hidden; overscroll-behavior:none; position:fixed; width:100%;
+    touch-action:manipulation;
+  }
+  #app{ height:calc(var(--vh) * 100); width:100%; position:relative; }
+  .screen{ position:absolute; inset:0; display:none; flex-direction:column; height:100%; width:100%;
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left); padding-right:env(safe-area-inset-right); }
+  .screen.active{ display:flex; }
+
+  /* ---------- CALENDAR (home) ---------- */
+  #screen-calendar{ overflow-y:auto; }
+  .cal-header{ display:flex; align-items:center; justify-content:space-between; padding:38px 10px 4px; }
+  .cal-title-btn{ margin:0; font-size:1.3rem; font-weight:800; letter-spacing:0.02em; background:none; border:none; color:var(--fg); font-family:inherit; padding:8px 14px; border-radius:10px; }
+  .cal-title-btn:active{ background:var(--bg-panel); }
+  .cal-nav-btn{ background:none; border:none; color:var(--fg); font-size:1.7rem; padding:10px 18px; line-height:1; }
+
+  .month-picker-modal{
+    position:absolute; inset:0; z-index:20; display:none;
+    align-items:center; justify-content:center; padding:24px;
+    background:rgba(6,9,12,0.72);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+  .month-picker-modal.open{ display:flex; }
+  .month-picker-card{
+    position:relative; width:100%; max-width:340px;
+    background:var(--bg-panel); border:2px solid var(--border); border-radius:24px;
+    padding:26px 20px 22px; display:flex; flex-direction:column; gap:16px; }
+  .mp-year-row{ display:flex; align-items:center; justify-content:center; gap:18px; }
+  .mp-year{ font-size:1.2rem; font-weight:800; min-width:64px; text-align:center; }
+  .mp-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .mp-month{
+    padding:14px 0; text-align:center; border-radius:12px; background:var(--bg); border:2px solid var(--border);
+    color:var(--fg); font-size:0.95rem; font-weight:700; }
+  .mp-month.current{ border-color:var(--accent-ready); color:var(--accent-ready); }
+  .mp-month.viewing{ background:var(--accent-exercise); color:#04140d; border-color:var(--accent-exercise); }
+  .mp-month:active{ background:var(--bg-panel-2); }
+  .today-card{
+    margin:12px 18px 6px; padding:20px 20px; border-radius:20px;
+    background:linear-gradient(135deg, rgba(90,169,255,0.16), rgba(52,211,153,0.10));
+    border:2px solid rgba(90,169,255,0.35);
+    display:flex; flex-direction:column; gap:10px; }
+  .today-card.rest{ background:var(--bg-panel); border-color:var(--border); }
+  .today-card.done{ border-color:rgba(52,211,153,0.5); }
+  .today-eyebrow{ font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--fg-dim); }
+  .today-meta{ color:var(--fg); font-size:1.15rem; font-weight:800; }
+  .today-card .big-btn{ margin-top:2px; }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); padding:20px 14px 4px; color:var(--fg-dim);
+    font-size:0.75rem; font-weight:800; text-align:center; letter-spacing:0.04em; text-transform:uppercase; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:10px; padding:8px 14px calc(130px + env(safe-area-inset-bottom)); }
+  .cal-day{
+    aspect-ratio:1; border-radius:14px; background:var(--bg-panel); border:2px solid var(--border);
+    color:var(--fg); font-size:1.2rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center; position:relative; }
+  .cal-day.empty{ background:transparent; border-color:transparent; visibility:hidden; }
+  .cal-day.scheduled{ background:rgba(90,169,255,0.10); }
+  .cal-day.done{ background:var(--accent-exercise); color:#04140d; border-color:var(--accent-exercise); }
+  .cal-day.today{ box-shadow:0 0 0 2px var(--accent-ready) inset; }
+  .cal-day:active{ background:var(--bg-panel-2); }
+  .cal-day.done:active{ opacity:0.85; }
+
+  /* ---------- TAB BAR ---------- */
+  .tab-bar{
+    position:absolute; left:0; right:0; bottom:0; z-index:10;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 22px calc(30px + env(safe-area-inset-bottom));
+    background:rgba(9,13,17,0.6);
+    -webkit-backdrop-filter:blur(22px) saturate(180%);
+    backdrop-filter:blur(22px) saturate(180%);
+    border-top:1px solid rgba(255,255,255,0.08);
+  }
+  .tab-btn{
+    background:rgba(255,255,255,0.10);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.14);
+    color:var(--fg-dim); border-radius:50%;
+    width:64px; height:64px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+  .tab-btn.selected{ color:var(--accent-exercise); border-color:rgba(52,211,153,0.45); background:rgba(52,211,153,0.14); }
+  .tab-btn:active{ background:rgba(255,255,255,0.2); }
+
+  /* ---------- EXERCISE LIBRARY (accordion) ---------- */
+  #screen-exercises{ overflow-y:auto; }
+  .acc-list{ padding:6px 18px calc(130px + env(safe-area-inset-bottom)); }
+  .acc-group{ border-bottom:1px solid var(--border); }
+  .acc-header{
+    width:100%; display:flex; align-items:center; justify-content:space-between;
+    padding:18px 4px; background:none; border:none; color:var(--fg);
+    font-size:1.02rem; font-weight:700; text-align:left; }
+  .acc-count{ color:var(--fg-dim); font-weight:600; font-size:0.85rem; }
+  .acc-chevron{ color:var(--fg-dim); flex:0 0 auto; transition:transform 0.25s ease; }
+  .acc-group.open .acc-chevron{ transform:rotate(180deg); }
+  .acc-content{ display:grid; grid-template-rows:0fr; transition:grid-template-rows 0.25s ease; }
+  .acc-group.open .acc-content{ grid-template-rows:1fr; }
+  .acc-content-inner{ overflow:hidden; }
+  .acc-item{ padding:12px 4px 12px 14px; color:var(--fg-dim); font-size:0.95rem; border-top:1px solid rgba(255,255,255,0.06); }
+
+  /* ---------- PROFILE ---------- */
+  #screen-profile{ overflow-y:auto; }
+  .progress-wheel-wrap{ position:relative; width:118px; height:118px; margin:14px auto 2px; }
+  .progress-wheel{ overflow:visible; }
+  .pw-track{ fill:none; stroke:var(--border); stroke-width:10; }
+  .pw-fill{ fill:none; stroke:var(--accent-exercise); stroke-width:10; stroke-linecap:round; transform:rotate(-90deg); transform-origin:60px 60px; transition:stroke-dashoffset 0.6s ease; }
+  .pw-label{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .pw-value{ font-size:1.25rem; font-weight:900; }
+  .pw-sub{ font-size:0.65rem; color:var(--fg-dim); text-transform:uppercase; font-weight:700; letter-spacing:0.03em; }
+  .profile-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 18px 4px; }
+  .stat-tile{ background:var(--bg-panel); border:2px solid var(--border); border-radius:16px; padding:14px 14px; display:flex; flex-direction:column; gap:4px; }
+  .stat-tile .stat-value{ font-size:1.4rem; font-weight:900; font-variant-numeric:tabular-nums; }
+
+  .music-card{
+    display:flex; align-items:center; gap:14px; margin:12px 18px 2px; padding:15px 16px; border-radius:18px;
+    background:linear-gradient(135deg, rgba(248,113,113,0.16), rgba(90,169,255,0.08));
+    border:2px solid rgba(248,113,113,0.32);
+    text-decoration:none; color:var(--fg); }
+  .music-card:active{ opacity:0.8; }
+  .music-icon{
+    width:38px; height:38px; border-radius:50%; flex:0 0 auto;
+    background:rgba(248,113,113,0.2); color:#fb7185;
+    display:flex; align-items:center; justify-content:center; }
+  .music-text{ flex:1; min-width:0; }
+  .music-title{ font-weight:800; font-size:0.98rem; }
+  .music-sub{ color:var(--fg-dim); font-size:0.8rem; font-weight:600; }
+  .music-chevron{ color:var(--fg-dim); flex:0 0 auto; }
+  .stat-tile .stat-label{ color:var(--fg-dim); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+
+  .settings-modal{
+    position:absolute; inset:0; z-index:20; display:none;
+    align-items:center; justify-content:center; padding:24px;
+    background:rgba(6,9,12,0.72);
+    -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+  .settings-modal.open{ display:flex; }
+  .settings-card{
+    position:relative; width:100%; max-width:380px;
+    background:var(--bg-panel); border:2px solid var(--border); border-radius:24px;
+    padding:30px 22px 24px; display:flex; flex-direction:column; gap:16px; }
+  .settings-title{ font-size:1.2rem; font-weight:800; text-align:center; }
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; padding:6px 2px; }
+  .settings-row span{ font-size:1rem; font-weight:600; }
+  .settings-toggle{ width:50px; height:30px; border-radius:999px; background:var(--border); border:none; position:relative; flex:0 0 auto; }
+  .settings-toggle::after{ content:''; position:absolute; top:3px; left:3px; width:24px; height:24px; border-radius:50%; background:var(--fg); transition:transform 0.2s ease; }
+  .settings-toggle.on{ background:var(--accent-exercise); }
+  .settings-toggle.on::after{ transform:translateX(20px); background:#04140d; }
+  .settings-danger-btn{ margin-top:6px; padding:16px; border-radius:14px; background:rgba(248,113,113,0.14); border:2px solid rgba(248,113,113,0.4); color:var(--accent-danger); font-weight:800; font-size:1rem; }
+  .settings-danger-btn:active{ opacity:0.8; }
+  .settings-about{ text-align:center; color:var(--fg-dim); font-size:0.82rem; line-height:1.5; margin-top:4px; }
+
+  /* ---------- DAY OVERVIEW (specific workout preview) ---------- */
+  .overview-body{ flex:1; min-height:0; display:flex; flex-direction:column; padding:10px 20px 0; }
+  .overview-scroll{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; }
+  .overview-rest{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; color:var(--fg-dim); }
+  .overview-rest .rest-emoji{ font-size:2.6rem; }
+  .overview-rest .rest-title{ font-size:1.3rem; font-weight:800; color:var(--fg); }
+  .overview-week-label{ text-align:center; color:var(--fg-dim); font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px; }
+  .overview-rounds-badge{
+    align-self:center; background:var(--bg-panel); border:2px solid var(--accent-exercise); color:var(--accent-exercise);
+    font-weight:800; font-size:1.1rem; padding:10px 24px; border-radius:999px; margin:10px 0 4px; }
+  .body-map-wrap{ display:flex; justify-content:center; padding:6px 0 16px; }
+  .body-map{ overflow:visible; }
+  .bm-zone{ fill:rgba(90,169,255,0.22); stroke:rgba(90,169,255,0.55); stroke-width:2; transition:fill 0.4s ease, stroke 0.4s ease; }
+  .body-map line.bm-zone{ fill:none; }
+  .bm-zone.hit{ fill:rgba(248,113,113,0.34); stroke:rgba(248,113,113,0.9); }
+  .body-map line.bm-zone.hit{ fill:none; }
+  .overview-list{ display:flex; flex-direction:column; }
+  .overview-item{ display:flex; justify-content:space-between; align-items:baseline; padding:14px 4px; border-bottom:1px solid var(--border); }
+  .overview-item .oi-name{ font-weight:700; font-size:1rem; }
+  .overview-item .oi-side{ color:var(--fg-dim); font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-left:6px; }
+  .overview-item .oi-dur{ color:var(--fg-dim); font-variant-numeric:tabular-nums; font-weight:700; flex:0 0 auto; }
+  .overview-footer{ flex:0 0 auto; background:var(--bg); padding:16px 0 calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:12px; }
+  .overview-total{ display:flex; justify-content:space-between; font-size:1rem; color:var(--fg-dim); font-weight:700; }
+  .overview-total b{ color:var(--fg); font-size:1.25rem; }
+
+  /* ---------- WORKOUT ---------- */
+  #screen-workout{ transition:background 0.4s ease; }
+  #screen-workout.phase-ready{ background:radial-gradient(circle at 50% 30%, #14243a, var(--bg) 70%); }
+  #screen-workout.phase-exercise{ background:radial-gradient(circle at 50% 30%, #0f2b23, var(--bg) 70%); }
+  #screen-workout.phase-rest{ background:radial-gradient(circle at 50% 30%, #2a2210, var(--bg) 70%); }
+  .top-bar{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px 0; }
+  .icon-btn{ background:none; border:none; color:var(--fg-dim); font-size:1.6rem; padding:10px 14px; line-height:1; }
+  .round-info{ font-size:1.05rem; font-weight:700; color:var(--fg-dim); letter-spacing:0.02em; }
+  .top-spacer{ width:44px; }
+  .progress-dots{ display:flex; justify-content:center; gap:10px; padding:12px 0 0; flex-wrap:wrap; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:var(--border); }
+  .dot.filled{ background:var(--fg-dim); }
+  .dot.current{ background:var(--fg); width:15px; height:15px; }
+
+  .stage{ position:relative; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10px 20px; gap:20px; min-height:0; }
+  .phase-label{ font-size:1.1rem; font-weight:800; letter-spacing:0.16em; text-transform:uppercase; }
+  .phase-ready .phase-label{ color:var(--accent-ready); }
+  .phase-exercise .phase-label{ color:var(--accent-exercise); }
+  .phase-rest .phase-label{ color:var(--accent-rest); }
+
+  .exercise-wrap{ max-height:34vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .exercise-name{ font-weight:800; line-height:1.08; font-size:64px; word-break:break-word; }
+  .side-label{
+    font-size:1.6rem; font-weight:900; letter-spacing:0.08em; padding:8px 30px; border-radius:999px;
+    background:rgba(255,255,255,0.10);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.16);
+    color:var(--fg);
+  }
+  .side-label.empty{ visibility:hidden; }
+
+  .timer{ font-variant-numeric:tabular-nums; font-weight:900; font-size:min(28vw, 150px); line-height:1; margin:6px 0; letter-spacing:-0.02em; }
+  .phase-ready .timer{ color:var(--accent-ready); }
+  .phase-exercise .timer{ color:var(--accent-exercise); }
+  .phase-rest .timer{ color:var(--accent-rest); }
+
+  .next-info{ color:var(--fg-dim); font-size:1rem; min-height:1.4em; }
+  .next-info b{ color:var(--fg); font-weight:700; }
+  .phase-rest .next-info{ font-size:1.3rem; }
+  .phase-rest .next-info b{ font-size:1.5rem; }
+
+  .controls{ display:flex; align-items:center; justify-content:space-between; padding:72px 32px calc(52px + env(safe-area-inset-bottom)); }
+  .ctrl-btn{
+    background:rgba(255,255,255,0.10);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.14);
+    color:var(--fg); border-radius:50%;
+    width:70px; height:70px; display:flex; align-items:center; justify-content:center; }
+  .ctrl-btn:active{ background:rgba(255,255,255,0.2); }
+
+  /* ---------- EXERCISE INFO MODAL ---------- */
+  .info-modal{
+    position:absolute; inset:0; z-index:20; display:none;
+    align-items:center; justify-content:center; padding:24px;
+    background:rgba(6,9,12,0.72);
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+  }
+  .info-modal.open{ display:flex; }
+  .info-card{
+    position:relative; width:100%; max-width:380px; max-height:82vh; overflow-y:auto;
+    background:var(--bg-panel); border:2px solid var(--border); border-radius:24px;
+    padding:30px 24px 26px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center; }
+  .info-close{
+    position:absolute; top:14px; right:14px; width:34px; height:34px; border-radius:50%;
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); color:var(--fg);
+    font-size:1rem; display:flex; align-items:center; justify-content:center; }
+  .info-name{ font-size:1.25rem; font-weight:800; padding-right:20px; }
+  .info-anim-wrap{ width:150px; height:180px; display:flex; align-items:center; justify-content:center; }
+  .info-cue{ color:var(--fg-dim); font-size:1rem; line-height:1.5; }
+
+  .kb-anim{ color:var(--accent-exercise); overflow:visible; }
+  .kb-anim line{ stroke:currentColor; }
+  .kb-anim .ka-head{ fill:currentColor; }
+  .kb-anim .ka-kb{ fill:currentColor; opacity:0; }
+
+  .anim-squat .ka-upper{ animation:kaSquatBob 1.8s ease-in-out infinite; }
+  .anim-squat .ka-leg-l{ animation:kaLegL 1.8s ease-in-out infinite; transform-origin:50px 66px; }
+  .anim-squat .ka-leg-r{ animation:kaLegR 1.8s ease-in-out infinite; transform-origin:50px 66px; }
+  @keyframes kaSquatBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(16px); } }
+  @keyframes kaLegL{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-9deg); } }
+  @keyframes kaLegR{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(9deg); } }
+
+  .anim-hinge .ka-upper{ animation:kaHinge 1.5s ease-in-out infinite; transform-origin:50px 66px; }
+  .anim-hinge .ka-kb{ opacity:1; }
+  @keyframes kaHinge{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(40deg); } }
+
+  .anim-push .ka-arm-l{ animation:kaPushL 1.5s ease-in-out infinite; transform-origin:50px 30px; }
+  .anim-push .ka-arm-r{ animation:kaPushR 1.5s ease-in-out infinite; transform-origin:50px 30px; }
+  .anim-push .ka-upper{ animation:kaPushDip 1.5s ease-in-out infinite; }
+  @keyframes kaPushDip{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(6px); } }
+  @keyframes kaPushL{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-38deg); } }
+  @keyframes kaPushR{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(38deg); } }
+
+  .anim-pull .ka-upper{ transform:rotate(16deg); transform-origin:50px 66px; }
+  .anim-pull .ka-arm-l{ animation:kaPullL 1.6s ease-in-out infinite; transform-origin:50px 30px; }
+  .anim-pull .ka-arm-r{ animation:kaPullR 1.6s ease-in-out infinite; transform-origin:50px 30px; }
+  @keyframes kaPullL{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(55deg); } }
+  @keyframes kaPullR{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-55deg); } }
+
+  .anim-core .ka-upper{ animation:kaCore 1.8s ease-in-out infinite; transform-origin:50px 66px; }
+  @keyframes kaCore{ 0%,100%{ transform:rotate(-15deg); } 50%{ transform:rotate(15deg); } }
+
+  .anim-overhead .ka-arm-l{ animation:kaOverL 1.7s ease-in-out infinite; transform-origin:50px 30px; }
+  .anim-overhead .ka-arm-r{ animation:kaOverR 1.7s ease-in-out infinite; transform-origin:50px 30px; }
+  @keyframes kaOverL{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-150deg); } }
+  @keyframes kaOverR{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(150deg); } }
+
+  .anim-warmup .ka-upper{ animation:kaWarm 2.6s ease-in-out infinite; transform-origin:50px 66px; }
+  @keyframes kaWarm{ 0%,100%{ transform:rotate(-8deg) translateY(0); } 50%{ transform:rotate(6deg) translateY(3px); } }
+
+  /* ---------- SUMMARY ---------- */
+  #screen-summary{ align-items:center; justify-content:center; padding:24px; }
+  .summary-card{ width:100%; max-width:420px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .summary-check{ width:88px; height:88px; border-radius:50%; background:var(--accent-exercise); color:#04140d;
+    font-size:2.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .summary-card h2{ margin:0; font-size:1.6rem; }
+  .summary-stats{ width:100%; background:var(--bg-panel); border:2px solid var(--border); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:10px; }
+  .stat-row{ display:flex; justify-content:space-between; font-size:1.05rem; }
+  .stat-row span:first-child{ color:var(--fg-dim); }
+  .stat-row span:last-child{ font-weight:800; }
+  .big-btn{ margin-top:8px; width:100%; padding:18px; font-size:1.15rem; font-weight:800; background:var(--accent-exercise);
+    color:#04140d; border:none; border-radius:16px; }
+  .big-btn:active{ opacity:0.85; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section id="screen-calendar" class="screen active">
+    <div class="cal-header">
+      <button id="calPrev" class="cal-nav-btn" aria-label="Previous month">&#8249;</button>
+      <button id="calTitle" class="cal-title-btn">Month Year</button>
+      <button id="calNext" class="cal-nav-btn" aria-label="Next month">&#8250;</button>
+    </div>
+    <div class="today-card" id="todayCard"></div>
+    <div class="cal-weekdays">
+      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="month-picker-modal" id="monthPickerModal">
+      <div class="month-picker-card">
+        <button id="btnMpClose" class="info-close" aria-label="Close">&#10005;</button>
+        <div class="mp-year-row">
+          <button id="mpYearPrev" class="cal-nav-btn" aria-label="Previous year">&#8249;</button>
+          <div class="mp-year" id="mpYear">2026</div>
+          <button id="mpYearNext" class="cal-nav-btn" aria-label="Next year">&#8250;</button>
+        </div>
+        <div class="mp-grid" id="mpGrid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-exercises" class="screen">
+    <div class="cal-header"><h1>Exercise Library</h1></div>
+    <div class="acc-list" id="exercisesList"></div>
+  </section>
+
+  <section id="screen-profile" class="screen">
+    <div class="cal-header">
+      <h1>Your Progress</h1>
+      <button id="btnSettings" class="cal-nav-btn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.61l-1.92-3.32a.5.5 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 0 0-.59.22L2.78 8.87a.5.5 0 0 0 .12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.5.5 0 0 0-.12.61l1.92 3.32c.14.24.44.34.7.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.26.11.56.02.7-.22l1.92-3.32a.5.5 0 0 0-.12-.61l-2.03-1.58zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
+      </button>
+    </div>
+    <div class="progress-wheel-wrap">
+      <svg class="progress-wheel" viewBox="0 0 120 120" width="118" height="118" aria-hidden="true">
+        <circle class="pw-track" cx="60" cy="60" r="52"/>
+        <circle class="pw-fill" id="pwFill" cx="60" cy="60" r="52"/>
+      </svg>
+      <div class="pw-label">
+        <div class="pw-value" id="pwValue">Week 1</div>
+        <div class="pw-sub" id="pwSub">of 6-week plan</div>
+      </div>
+    </div>
+    <div class="profile-stats" id="profileStats"></div>
+
+    <a href="https://music.apple.com/" class="music-card" id="musicCard">
+      <div class="music-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
+      <div class="music-text">
+        <div class="music-title">Workout Playlist</div>
+        <div class="music-sub">Open in Apple Music</div>
+      </div>
+      <svg class="music-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+
+    <div class="cal-weekdays">
+      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+    </div>
+    <div class="cal-grid" id="profileCalGrid"></div>
+
+    <div class="settings-modal" id="settingsModal">
+      <div class="settings-card">
+        <button id="btnSettingsClose" class="info-close" aria-label="Close">&#10005;</button>
+        <div class="settings-title">Settings</div>
+        <div class="settings-row">
+          <span>Sound</span>
+          <button id="toggleSound" class="settings-toggle" aria-label="Toggle sound"></button>
+        </div>
+        <div class="settings-row">
+          <span>Vibration</span>
+          <button id="toggleVibrate" class="settings-toggle" aria-label="Toggle vibration"></button>
+        </div>
+        <button id="btnRestartPlan" class="settings-danger-btn">Restart 6-Week Plan</button>
+        <div class="settings-about">Kettlebell HIIT Timer &middot; a 6-week kettlebell programme timer, built just for you.</div>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tab-bar" id="tabBar">
+    <button id="tabCalendar" class="tab-btn selected" aria-label="Calendar">
+      <svg viewBox="0 0 24 24" width="27" height="27" fill="currentColor" aria-hidden="true"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zM3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9H3zm4 3h4v4H7v-4z"/></svg>
+    </button>
+    <button id="tabExercises" class="tab-btn" aria-label="Exercise Library">
+      <svg viewBox="0 0 24 24" width="27" height="27" fill="currentColor" aria-hidden="true"><path d="M2 10h2v4H2v-4zm3-2h2v8H5V8zm3-1h2v10H8V7zm6 0h2v10h-2V7zm3 1h2v8h-2V8zm3 2h2v4h-2v-4z"/></svg>
+    </button>
+    <button id="tabProfile" class="tab-btn" aria-label="Your Progress">
+      <svg viewBox="0 0 24 24" width="27" height="27" fill="currentColor" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.42 0-8 2.24-8 5v1a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1c0-2.76-3.58-5-8-5z"/></svg>
+    </button>
+  </nav>
+
+  <section id="screen-overview" class="screen">
+    <div class="top-bar">
+      <button id="btnOverviewBack" class="icon-btn" aria-label="Back to calendar">&#8249;</button>
+      <div class="round-info" id="overviewDate">Date</div>
+      <div class="top-spacer"></div>
+    </div>
+    <div class="overview-body" id="overviewBody"></div>
+  </section>
+
+  <section id="screen-workout" class="screen phase-ready">
+    <div class="top-bar">
+      <button id="btnExit" class="icon-btn" aria-label="Exit workout">&#10005;</button>
+      <div class="round-info" id="roundInfo">Round 1 of 1</div>
+      <div class="top-spacer"></div>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+    <div class="stage" id="stage">
+      <div class="phase-label" id="phaseLabel">Get Ready</div>
+      <div class="exercise-wrap"><div class="exercise-name" id="exerciseName">Loading&hellip;</div></div>
+      <div class="side-label empty" id="sideLabel">RIGHT</div>
+      <div class="timer" id="timerDisplay">3</div>
+      <div class="next-info" id="nextInfo">Next: <b>&hellip;</b></div>
+    </div>
+    <div class="controls">
+      <button id="btnSkipBack" class="ctrl-btn" aria-label="Skip back"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M20 6v12l-8.5-6L20 6zm-10 0v12L1.5 12 10 6z"/></svg></button>
+      <button id="btnInfo" class="ctrl-btn" aria-label="How to do this exercise"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></button>
+      <button id="btnSkipFwd" class="ctrl-btn" aria-label="Skip forward"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M4 6v12l8.5-6L4 6zm10 0v12l8.5-6L14 6z"/></svg></button>
+    </div>
+
+    <div class="info-modal" id="infoModal">
+      <div class="info-card">
+        <button id="btnInfoClose" class="info-close" aria-label="Close">&#10005;</button>
+        <div class="info-name" id="infoName">Exercise Name</div>
+        <div class="info-anim-wrap" id="infoAnimWrap"></div>
+        <div class="info-cue" id="infoCue">Form cue goes here.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-summary" class="screen">
+    <div class="summary-card">
+      <div class="summary-check">&#10003;</div>
+      <h2 id="summaryTitle">Workout Complete!</h2>
+      <div class="summary-stats" id="summaryStats"></div>
+      <button id="btnHome" class="big-btn">Back to Home</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= PROGRAM DATA ================= */
+/* [durationSeconds, "Exercise Name"] ; trailing "(R/L)" marks a per-side exercise */
+const PROGRAM = {
+  1:{
+    1:{rounds:2, ex:[[60,"Cobra into Downward Dog"],[60,"Diamond Hand Cobra → Child Pose"],[60,"Lunge T-Spine Twist (R/L)"],[60,"Dead Stop Swings"],[60,"Offset Reverse Lunge w/ Knee Drive (R/L)"],[30,"Cross-Load Reverse Lunge Pulses (R/L)"],[45,"Offset Push-Ups (R/L)"],[60,"Leaning Forward Rows (R/L)"],[30,"Half Burpees"]]},
+    2:{rounds:3, ex:[[45,"KB Swings"],[60,"Double Hand Dead Cleans"],[45,"Goblet Squat to Press"],[45,"Rotational Reverse Lunges"],[45,"High Plank Leans"],[45,"Offset Push-Ups (R/L)"],[45,"Alt Bear Crawl Rows"],[45,"Half Burpees"],[30,"Cross Body Mtn Climbers"]]},
+    3:{rounds:3, ex:[[60,"Toe Taps → Cobra → Pulse Push-up"],[60,"Lunge T-Spine Twist (R/L)"],[60,"Dead Stop Swing → High Plank"],[45,"Weighted Horse Stance Pulses"],[30,"Squat Jumps"],[30,"Isometric Reverse Lunge (R/L)"],[30,"Single Leg Lunge Jumps (R/L)"],[45,"Single Side Chest Press w/ Crunch (R/L)"],[45,"Flutter Kicks"]]},
+    4:{rounds:3, ex:[[60,"Deep Squat Rotations"],[60,"Bear Crawl Knee Extensions"],[45,"Alt HALO w/ Rotation"],[60,"Squat into HALO"],[60,"Rotational Front Lunges (R/L)"],[45,"Rotational Reverse Lunges"],[30,"Side Plank Rotations (R/L)"],[45,"Cross Body Mtn Climbers"]]}
+  },
+  2:{
+    1:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[60,"Quad Stretch → Glute Raise"],[45,"Single Side Swing (R/L)"],[45,"Squat Thruster (R/L)"],[45,"Overhead Alt March (R/L)"],[45,"Offset Push-Ups (R/L)"],[45,"Alt Renegade Rows"],[30,"Burpees"]]},
+    2:{rounds:3, ex:[[60,"Deep Squat Taps"],[60,"Rotational Lunges"],[45,"Alt Reverse Lunges (R/L)"],[60,"2 Woodchoppers → Goblet Squat Pulse (R/L)"],[45,"Elbow in Elbow Out Row (R/L)"],[60,"Dead Stop Swing → High Plank"],[30,"Diamond Push-Up Pulses (Knees)"]]},
+    3:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[60,"Lunge T-Spine Twist (R/L)"],[60,"Dead Stop Swing → High Plank"],[45,"Rotational Reverse Lunge"],[30,"Isometric Tip-Toe Lunge Hold (R/L)"],[20,"Single Leg Lunge Jumps (R/L)"],[30,"Low Squat Hold Tip Toe"],[30,"Half Burpees"],[45,"Two Curls → Two Overhead Extensions"]]},
+    4:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[60,"Low Plank → Downward Dog"],[45,"Alt HALO w/ Rotation"],[45,"Rotational Squat Thruster (R/L)"],[45,"Rotational Front Lunges (R/L)"],[45,"Half Kneeling Windmills (R/L)"],[45,"Kneeling Around The Worlds"],[45,"Turkish Half Get Up Crunch (R/L)"]]}
+  },
+  3:{
+    1:{rounds:3, ex:[[60,"Diamond Hand Cobra → Child Pose"],[45,"Squat → Pullover"],[45,"Overhead Lunges (R/L)"],[60,"2 Woodchoppers → Goblet Squat Pulse (R/L)"],[45,"Bear Crawl Rows → Renegade Rows (R/L)"],[45,"Reaches Low Plank High Plank"],[60,"3 Chest Press + 3 Toe Taps"]]},
+    2:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[60,"Lunge T-Spine Twist (R/L)"],[60,"Hand to Hand Swings"],[60,"Offset Reverse Lunge w/ Knee Drive (R/L)"],[45,"Rotational Standing Shoulder Press (R/L)"],[45,"Offset Push-Up → Renegade Row (R/L)"],[45,"KB Swings"]]},
+    3:{rounds:3, ex:[[60,"Tip Toe Ribcage Squats"],[60,"Butterfly → Quad Extensions"],[60,"Single Side Swing (R/L)"],[45,"Squat → Pullover"],[30,"Tip Toe Low Squat Jumps"],[30,"Isometric Lunge Pass-Throughs (R/L)"],[20,"Reverse Lunge Jumps"],[60,"Bear Crawl Rows → Renegade Rows (R/L)"]]},
+    4:{rounds:3, ex:[[60,"Squat Pullover → 2 Rotational Lunges"],[60,"Lateral Swings w/ Rotational Upper Press (R/L)"],[60,"Rotational Squat Thruster (R/L)"],[45,"Half Kneeling Windmills (R/L)"],[45,"Alt HALO w/ Rotation"],[45,"Russian Twist + Shoulder Press"]]}
+  },
+  4:{
+    1:{rounds:2, ex:[[60,"Cobra into Downward Dog"],[60,"Deep Squat Rotations"],[120,"5 Swings → 5 Squat to Swings → 5 Squat to Raises"],[120,"1 Swing → 1 Clean → 1 Push Press (R/L)"],[60,"Full Push-Ups"],[60,"Elbow in Elbow Out Row (R/L)"]]},
+    2:{rounds:3, ex:[[60,"Dynamic Cat Cows"],[45,"Dolphin Push-Ups"],[60,"Rotational Lunge into HALO"],[45,"Squat → Pullover"],[45,"Overhead Reverse Lunges (R/L)"],[45,"Overhead Alt March (R/L)"],[45,"Overhead Lunges (R/L)"],[45,"Single Side Chest Press w/ Glute Raise Hold (R/L)"],[45,"V Sit + Heel Taps"],[45,"10 Flutter Kicks + 5 Bicycles"]]},
+    3:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[60,"Rotational Lunge into HALO"],[45,"Squat Jump Clean to Press"],[45,"Isometric Tip-Toe Lunge Hold (R/L)"],[45,"Mike Tyson Jumps"],[45,"Low Squat Hold Tip Toe"],[60,"Squat → Pullover"],[45,"Cross Body Crunch (R/L)"]]},
+    4:{rounds:3, ex:[[120,"Downward Dog → Forward Lunge Rotation"],[45,"Side Plank Rotations (R/L)"],[45,"Swing into Clean (R/L)"],[45,"Lateral Swings w/ Rotational Upper Press (R/L)"],[45,"Rotational Squat Thruster (R/L)"],[60,"Rotational Front Lunges (R/L)"]]}
+  },
+  5:{
+    1:{rounds:3, ex:[[120,"5 Swings → 5 Boxer Stance Thrust (R/L)"],[60,"Offset Push-Up → Knee Tuck (R/L)"],[60,"Bear Crawl Rows → Renegade Rows (R/L)"],[45,"Low Plank High Plank Half Burpee"]]},
+    2:{rounds:3, ex:[[120,"Push-Up to Squat Press Ladder (Reach)"],[30,"High Knees"],[120,"1 Swing → 1 Clean → 1 Push Press (R/L)"],[45,"Squat Thruster (R/L)"],[45,"Offset Push-Up → Renegade Row (R/L)"],[45,"Bear Crawl Rows → Renegade Rows (R/L)"],[45,"Low to High Plank Climbers"]]},
+    3:{rounds:3, ex:[[60,"Cobra into Downward Dog"],[45,"Lunge T-Spine Twist (R/L)"],[45,"3 Sec Squat Hold w/ 3 Squat Jumps"],[45,"Pullover → Sit-Up into Half Squat"],[45,"Isometric Lunge Pass-Throughs (R/L)"],[30,"Isometric Tip-Toe Lunge Hold (R/L)"],[30,"Single Leg Lunge Jumps (R/L)"],[45,"Single Side Chest Press w/ Knee Tuck (R/L)"],[30,"KB Weighted Boat Hold"]]},
+    4:{rounds:3, ex:[[60,"2 Squats + 2 Rotations"],[45,"Hip 90/90 Elbow Rotations (R/L)"],[45,"Lateral Swings w/ Rotational Upper Press (R/L)"],[45,"Rotational Standing Shoulder Press (R/L)"],[45,"Rotational Front Lunges (R/L)"],[45,"Half Kneeling Windmills (R/L)"],[45,"3 Point Rotational Hammer Curls"],[45,"1 Kettle Push-Up → 1 Jumping Squat"]]}
+  },
+  6:{
+    1:{rounds:2, ex:[[60,"Cobra into Downward Dog"],[45,"Lunge T-Spine Twist (R/L)"],[60,"1 Swing → 1 Clean → 1 Push Press (R/L)"],[45,"Rotational Lunge into HALO"],[30,"Isometric Lunge Pass-Throughs (R/L)"],[20,"Single Leg Lunge Jumps (R/L)"],[60,"Alt Renegade Rows"],[45,"Close Grip + Wide Grip Push-Up"],[60,"Chest Press w/ Crunch"],[45,"Turkish Half Get Up Crunch (R/L)"],[45,"Half Hollow Body Hold"]]},
+    2:{rounds:2, ex:[[60,"Cobra → Downward Dog"],[60,"Quad Stretch → Glute Raise"],[60,"5 Swings → 5 High Pulls"],[60,"Squat Curl → Pullover"],[60,"Row Into High Squat High Pull (R/L)"],[60,"Bottoms Up Reverse Lunge Press (R/L)"],[60,"Around The World Reverse Lunges"],[60,"Single Side Chest Press w/ Knee Tuck (R/L)"],[60,"Knuckle Compression Lift Hold"]]},
+    3:{rounds:3, ex:[[60,"Cobra → Downward Dog"],[60,"Diamond Hand Cobra → Child Pose"],[60,"High Pull Swings (R/L)"],[30,"Overhead Isometric Lunge Hold (R/L)"],[30,"Overhead Reverse Lunges (R/L)"],[60,"Low Plank High Plank Half Burpee"],[60,"Mike Tyson Burpees (2 Push-Ups)"],[45,"Isometric Tip-Toe Lunge Hold (R/L)"]]},
+    4:{rounds:2, ex:[[60,"Cobra into Downward Dog"],[60,"Lunge T-Spine Twist (R/L)"],[90,"H2H Clean + Squat Thruster"],[45,"High Pull Swings (R/L)"],[45,"Rotational Front Lunges (R/L)"],[45,"Rotational Swing Clean (R/L)"],[45,"Rotational Squat Thruster (R/L)"],[45,"Rotational Lunge into HALO"],[45,"Side Plank Rotations (R/L)"]]}
+  }
+};
+
+const EXERCISE_REST = 30;
+const ROUND_REST = 60;
+const SIDE_REST = 30;      // rest inserted between Right and Left of the same exercise
+const GET_READY_SECONDS = 3;
+
+/* ================= HELPERS ================= */
+function parseExercise(raw){
+  const dur = raw[0];
+  let name = raw[1];
+  const sided = /\(R\/L\)\s*$/i.test(name);
+  if(sided) name = name.replace(/\s*\(R\/L\)\s*$/i,'').trim();
+  return {dur, name, sided};
+}
+
+function fmtTime(totalSeconds){
+  const s = Math.max(0, Math.ceil(totalSeconds));
+  if(s >= 60){
+    const m = Math.floor(s/60), r = s%60;
+    return m + ':' + String(r).padStart(2,'0');
+  }
+  return String(s);
+}
+
+// Anticipated (pre-workout, estimated) durations are shown rounded to the nearest 5 minutes
+// rather than exact seconds, since they're a planning estimate, not an achieved result.
+function anticipatedMinutes(totalSeconds){
+  const mins = totalSeconds / 60;
+  return Math.max(5, Math.round(mins / 5) * 5);
+}
+
+// Progress is keyed by calendar date ("YYYY-MM-DD") so the calendar can show which real days had a workout.
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem('hiitProgress') || '{}'); }
+  catch(e){ return {}; }
+}
+function saveProgress(p){ localStorage.setItem('hiitProgress', JSON.stringify(p)); }
+function markComplete(dateStr, week, day){
+  const p = loadProgress();
+  p[dateStr] = { week, day, at: Date.now() };
+  saveProgress(p);
+}
+function isDateComplete(dateStr){
+  const p = loadProgress();
+  return !!p[dateStr];
+}
+function isoDate(d){
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+
+/* ================= AUTO SCHEDULE ================= */
+// The programme runs Mon/Tue/Thu/Fri = Day 1-4 of whichever week is current, and
+// silently restarts at Week 1 once Week 6 finishes, forever, based purely on date math.
+const WORKOUT_WEEKDAYS = { 1:1, 2:2, 4:3, 5:4 }; // JS getDay(): Mon=1,Tue=2,Thu=4,Fri=5 -> programme day slot
+
+function mostRecentMonday(date){
+  const dow = date.getDay(); // 0=Sun..6=Sat
+  const diff = (dow + 6) % 7; // days since most recent Monday
+  const monday = new Date(date);
+  monday.setDate(date.getDate() - diff);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+// Bumping SCHEDULE_VERSION forces a one-time recompute of the stored start date below,
+// even for a browser that already cached an older anchor from before this change.
+const SCHEDULE_VERSION = 2;
+function getProgramStart(){
+  const storedVersion = parseInt(localStorage.getItem('hiitScheduleVersion') || '0', 10);
+  let s = localStorage.getItem('hiitProgramStart');
+  if(!s || storedVersion < SCHEDULE_VERSION){
+    const nextMonday = mostRecentMonday(new Date());
+    nextMonday.setDate(nextMonday.getDate() + 7);
+    s = isoDate(nextMonday);
+    localStorage.setItem('hiitProgramStart', s);
+    localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
+  }
+  return s;
+}
+
+function getScheduledWorkout(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m-1, d);
+  const daySlot = WORKOUT_WEEKDAYS[date.getDay()];
+  if(!daySlot) return null; // rest day (Wed/Sat/Sun)
+
+  const [sy,sm,sd] = getProgramStart().split('-').map(Number);
+  const startMonday = new Date(sy, sm-1, sd);
+  const thisMonday = mostRecentMonday(date);
+
+  const msPerDay = 24*60*60*1000;
+  const weeksElapsed = Math.round((thisMonday - startMonday) / (7*msPerDay));
+  if(weeksElapsed < 0) return null; // before programme start
+
+  const cycleWeek = ((weeksElapsed % 6) + 6) % 6;
+  return { week: cycleWeek + 1, day: daySlot };
+}
+
+// Which of the 6 programme weeks "today" falls in, independent of whether today
+// itself is a workout day — used for the profile progress wheel.
+function getCurrentProgramWeek(){
+  const [sy,sm,sd] = getProgramStart().split('-').map(Number);
+  const startMonday = new Date(sy, sm-1, sd);
+  const thisMonday = mostRecentMonday(new Date());
+  const msPerDay = 24*60*60*1000;
+  const weeksElapsed = Math.round((thisMonday - startMonday) / (7*msPerDay));
+  if(weeksElapsed < 0) return null; // programme hasn't started yet
+  return (((weeksElapsed % 6) + 6) % 6) + 1;
+}
+
+function nearestMonday(date){
+  const prev = mostRecentMonday(date);
+  const next = new Date(prev);
+  next.setDate(next.getDate() + 7);
+  return (date - prev) <= (next - date) ? prev : next;
+}
+
+/* ================= EXERCISE LIBRARY (for the Exercises tab) ================= */
+const EXERCISE_GROUPS = [
+  { title:'Warm-Up & Mobility', items:['Butterfly → Quad Extensions','Cobra into Downward Dog','Cobra → Downward Dog','Deep Squat Rotations','Deep Squat Taps','Diamond Hand Cobra → Child Pose','Dolphin Push-Ups','Downward Dog → Forward Lunge Rotation','Dynamic Cat Cows','Low Plank → Downward Dog','Quad Stretch → Glute Raise','Tip Toe Ribcage Squats','Toe Taps → Cobra → Pulse Push-up'] },
+  { title:'Core & Rotation', items:['10 Flutter Kicks + 5 Bicycles','2 Squats + 2 Rotations','Bear Crawl Knee Extensions','Cross Body Crunch','Cross Body Mtn Climbers','Flutter Kicks','Half Hollow Body Hold','High Plank Leans','Hip 90/90 Elbow Rotations','KB Weighted Boat Hold','Knuckle Compression Lift Hold','Low Plank High Plank Half Burpee','Low to High Plank Climbers','Lunge T-Spine Twist','Pullover → Sit-Up into Half Squat','Reaches Low Plank High Plank','Russian Twist + Shoulder Press','Side Plank Rotations','Turkish Half Get Up Crunch','V Sit + Heel Taps'] },
+  { title:'Swings, Cleans & Hip Hinge', items:['1 Swing → 1 Clean → 1 Push Press','5 Swings → 5 Boxer Stance Thrust','5 Swings → 5 High Pulls','5 Swings → 5 Squat to Swings → 5 Squat to Raises','Dead Stop Swing → High Plank','Dead Stop Swings','Double Hand Dead Cleans','H2H Clean + Squat Thruster','Hand to Hand Swings','High Pull Swings','KB Swings','Rotational Swing Clean','Row Into High Squat High Pull','Single Side Swing','Swing into Clean'] },
+  { title:'Legs, Squats & Lunges', items:['3 Sec Squat Hold w/ 3 Squat Jumps','Alt Reverse Lunges','Around The World Reverse Lunges','Bottoms Up Reverse Lunge Press','Cross-Load Reverse Lunge Pulses','Goblet Squat to Press','High Knees','Isometric Lunge Pass-Throughs','Isometric Reverse Lunge','Isometric Tip-Toe Lunge Hold','Low Squat Hold Tip Toe','Mike Tyson Jumps','Offset Reverse Lunge w/ Knee Drive','Overhead Isometric Lunge Hold','Overhead Lunges','Overhead Reverse Lunges','Reverse Lunge Jumps','Rotational Front Lunges','Rotational Lunge into HALO','Rotational Lunges','Rotational Reverse Lunge','Rotational Reverse Lunges','Rotational Squat Thruster','Single Leg Lunge Jumps','Squat Curl → Pullover','Squat Jump Clean to Press','Squat Jumps','Squat Pullover → 2 Rotational Lunges','Squat Thruster','Squat into HALO','Squat → Pullover','Tip Toe Low Squat Jumps','Weighted Horse Stance Pulses'] },
+  { title:'Chest & Push', items:['1 Kettle Push-Up → 1 Jumping Squat','3 Chest Press + 3 Toe Taps','Burpees','Chest Press w/ Crunch','Close Grip + Wide Grip Push-Up','Diamond Push-Up Pulses (Knees)','Full Push-Ups','Half Burpees','Mike Tyson Burpees (2 Push-Ups)','Offset Push-Up → Knee Tuck','Offset Push-Up → Renegade Row','Offset Push-Ups','Push-Up to Squat Press Ladder (Reach)','Single Side Chest Press w/ Crunch','Single Side Chest Press w/ Glute Raise Hold','Single Side Chest Press w/ Knee Tuck'] },
+  { title:'Back & Pull', items:['Alt Bear Crawl Rows','Alt Renegade Rows','Bear Crawl Rows → Renegade Rows','Elbow in Elbow Out Row','Leaning Forward Rows'] },
+  { title:'Shoulders & Arms', items:['2 Woodchoppers → Goblet Squat Pulse','3 Point Rotational Hammer Curls','Alt HALO w/ Rotation','Half Kneeling Windmills','Kneeling Around The Worlds','Lateral Swings w/ Rotational Upper Press','Overhead Alt March','Rotational Standing Shoulder Press','Two Curls → Two Overhead Extensions'] }
+];
+
+// Each group maps to one of 7 simplified stick-figure movement-pattern animations —
+// not exercise-specific, but representative of the pattern (squat, hinge, push, pull, etc).
+const GROUP_TO_ANIM = {
+  'Warm-Up & Mobility': 'anim-warmup',
+  'Core & Rotation': 'anim-core',
+  'Swings, Cleans & Hip Hinge': 'anim-hinge',
+  'Legs, Squats & Lunges': 'anim-squat',
+  'Chest & Push': 'anim-push',
+  'Back & Pull': 'anim-pull',
+  'Shoulders & Arms': 'anim-overhead'
+};
+
+const EXERCISE_TO_GROUP = {};
+EXERCISE_GROUPS.forEach(g => g.items.forEach(name => { EXERCISE_TO_GROUP[name] = g.title; }));
+
+const EXERCISE_CUES = {
+  'Butterfly → Quad Extensions':'Sit with soles together, then extend one leg straight to stretch the hamstring — keep your back tall, don’t round forward.',
+  'Cobra into Downward Dog':'Press through your palms, lift your hips up and back into an inverted V — let your heels reach toward the floor.',
+  'Cobra → Downward Dog':'Same flow as above — chest up into cobra, then hips up and back into downward dog.',
+  'Deep Squat Rotations':'Sink into a deep squat, knees tracking over toes, then rotate your torso side to side reaching one arm up.',
+  'Deep Squat Taps':'Hold a deep squat position and tap the floor in front of you — keep your chest up and heels down.',
+  'Diamond Hand Cobra → Child Pose':'Press into a diamond-hand cobra stretch, then sit back onto your heels into child’s pose.',
+  'Dolphin Push-Ups':'Forearms on the floor, hips high — rock forward over your elbows and back, like a forearm plank push-up.',
+  'Downward Dog → Forward Lunge Rotation':'From downward dog, step one foot forward into a lunge and rotate your torso open toward the front leg.',
+  'Dynamic Cat Cows':'On hands and knees, alternate arching your spine up (cat) and dipping it down (cow) with your breath.',
+  'Low Plank → Downward Dog':'Flow from a low forearm plank up into downward dog, pressing your hips toward the ceiling.',
+  'Quad Stretch → Glute Raise':'Pull one heel to your glute for a quad stretch, then squeeze that glute to lift your hip.',
+  'Tip Toe Ribcage Squats':'Rise onto your toes in a squat stance and rotate your ribcage side to side — stay light and controlled.',
+  'Toe Taps → Cobra → Pulse Push-up':'Tap your toes back, flow into a cobra stretch, then pulse a small push-up at the top.',
+
+  '10 Flutter Kicks + 5 Bicycles':'Keep your lower back pressed to the floor — small controlled flutter kicks, then bicycle your knees toward opposite elbows.',
+  '2 Squats + 2 Rotations':'Two bodyweight squats, then two standing torso rotations — keep your core braced through both.',
+  'Bear Crawl Knee Extensions':'From a bear crawl position, extend one leg straight back without letting your hips sag or twist.',
+  'Cross Body Crunch':'Crunch up bringing your elbow toward the opposite knee — rotate from your ribs, not by yanking your neck.',
+  'Cross Body Mtn Climbers':'In a plank, drive one knee across toward the opposite elbow — keep your hips low and core tight.',
+  'Flutter Kicks':'Lower back pressed flat to the floor, small quick alternating leg kicks just above the ground.',
+  'Half Hollow Body Hold':'Lower back glued to the floor, shoulders and legs lifted slightly — brace like someone’s about to poke your stomach.',
+  'High Plank Leans':'In a high plank, shift your weight forward past your hands and back — keep a straight line from head to heels.',
+  'Hip 90/90 Elbow Rotations':'Sit in a 90/90 hip position and rotate your torso, driving your elbow toward the floor.',
+  'KB Weighted Boat Hold':'Sit balanced on your tailbone, knees bent, holding the kettlebell steady at your chest — chest up, don’t round.',
+  'Knuckle Compression Lift Hold':'Hold a plank on your knuckles, squeezing everything tight — imagine pulling your elbows toward your feet.',
+  'Low Plank High Plank Half Burpee':'Move from forearm plank to high plank and back, then add a half burpee hop — keep your hips level throughout.',
+  'Low to High Plank Climbers':'Walk from forearm plank to high plank one arm at a time without letting your hips twist or sway.',
+  'Lunge T-Spine Twist':'In a lunge, rotate your upper back toward your front leg, reaching your arm up and around.',
+  'Pullover → Sit-Up into Half Squat':'Pull the kettlebell overhead and back, then sit up and stand into a half squat in one flowing motion.',
+  'Reaches Low Plank High Plank':'From a low plank, reach one arm forward, then press up to high plank — control the movement, don’t rush.',
+  'Russian Twist + Shoulder Press':'Rotate side to side with the kettlebell at your chest, then press it overhead — keep your feet grounded or lifted for more challenge.',
+  'Side Plank Rotations':'Hold a side plank and rotate your top arm under your body and back up toward the ceiling.',
+  'Turkish Half Get Up Crunch':'Lying down, press the kettlebell straight up, then crunch up toward it — keep your arm locked out the whole time.',
+  'V Sit + Heel Taps':'Balance on your tailbone in a V shape, then lower to tap your heels down without rounding your back.',
+
+  '1 Swing → 1 Clean → 1 Push Press':'Swing the bell, clean it to your shoulder, then press it overhead — reset your hinge between each rep.',
+  '5 Swings → 5 Boxer Stance Thrust':'Five hip-hinge swings, then five hip thrusts from a staggered boxer stance — drive through your heels.',
+  '5 Swings → 5 High Pulls':'Five swings, then five high pulls — pull your elbow high and back like starting a lawnmower.',
+  '5 Swings → 5 Squat to Swings → 5 Squat to Raises':'Chain swings with squats — hinge for the swing, squat for the others, keep your back flat throughout.',
+  'Dead Stop Swing → High Plank':'Swing from a dead stop on the floor, then step back into a high plank — hinge, don’t squat, to start the swing.',
+  'Dead Stop Swings':'Start each rep with the bell resting on the floor — hike it back, then snap your hips forward to swing.',
+  'Double Hand Dead Cleans':'Hike the bell back like a swing, then pull it up to rack position at your chest with both hands.',
+  'H2H Clean + Squat Thruster':'Clean the bell hand-to-hand, then squat and drive it overhead in one smooth thruster.',
+  'Hand to Hand Swings':'Swing the bell and release it briefly at the top of the arc to catch with the other hand — stay hinged, not squatted.',
+  'High Pull Swings':'As the bell reaches chest height, pull your elbow up and back — like starting a lawnmower with the bell as the cord.',
+  'KB Swings':'Hinge at the hips, not the knees — let the bell float weightless to chest height, don’t muscle it up with your arms.',
+  'Rotational Swing Clean':'Swing and clean the bell while rotating your torso — let your hips lead the rotation, not your arms.',
+  'Row Into High Squat High Pull':'Row the bell to your ribs, then stand into a high squat and pull it up and back.',
+  'Single Side Swing':'One-arm swing — let your hips do the work, keep your shoulder packed down so the arm doesn’t get yanked.',
+  'Swing into Clean':'Swing the bell up, then guide it into rack position at your shoulder as it comes back down — soft catch, not a slam.',
+
+  '3 Sec Squat Hold w/ 3 Squat Jumps':'Hold the bottom of a squat for 3 seconds, then explode up into 3 quick squat jumps.',
+  'Alt Reverse Lunges':'Step back into a lunge, alternating legs — keep your front knee stacked over your ankle.',
+  'Around The World Reverse Lunges':'Step back into a lunge while circling the kettlebell around your body — stay balanced and controlled.',
+  'Bottoms Up Reverse Lunge Press':'Hold the kettlebell upside down by the handle while lunging back and pressing — grip hard to keep it steady.',
+  'Cross-Load Reverse Lunge Pulses':'Hold the bell at one shoulder, lunge back on the opposite leg, and pulse at the bottom.',
+  'Goblet Squat to Press':'Hold the bell at your chest, squat down, then press it overhead as you stand.',
+  'High Knees':'Drive your knees up toward chest height quickly — stay light on your feet, pump your arms.',
+  'Isometric Lunge Pass-Throughs':'Hold a static lunge and pass the kettlebell under your front leg from hand to hand.',
+  'Isometric Reverse Lunge':'Hold the bottom of a reverse lunge — front knee over ankle, back knee hovering just above the floor.',
+  'Isometric Tip-Toe Lunge Hold':'Hold a lunge on the toes of your back foot — engage your core to stay balanced.',
+  'Low Squat Hold Tip Toe':'Hold a deep squat while rising onto your toes — keep your chest up and core braced.',
+  'Mike Tyson Jumps':'Quick lateral squat jumps side to side, staying low between reps like a boxer’s shuffle.',
+  'Offset Reverse Lunge w/ Knee Drive':'Hold the bell on one side, lunge back, then drive that knee up to hip height as you stand.',
+  'Overhead Isometric Lunge Hold':'Hold a lunge position with the bell locked out overhead — keep your ribs down, don’t let your back arch.',
+  'Overhead Lunges':'Lunge forward or back while holding the bell locked out overhead — keep your arm stacked over your shoulder.',
+  'Overhead Reverse Lunges':'Step back into a lunge with the bell pressed overhead — brace your core so you don’t lean.',
+  'Reverse Lunge Jumps':'Step back into a lunge, then explode up and switch legs in the air — land soft and controlled.',
+  'Rotational Front Lunges':'Step forward into a lunge while rotating the kettlebell across your body.',
+  'Rotational Lunge into HALO':'Lunge with a rotation, then circle the kettlebell around your head (HALO) as you stand.',
+  'Rotational Lunges':'Lunge while rotating your torso and the kettlebell toward your front leg.',
+  'Rotational Reverse Lunge':'Step back into a lunge while rotating your torso and the bell toward the front leg.',
+  'Rotational Reverse Lunges':'Same rotational reverse lunge, alternating sides — lead the rotation with your ribs, not your arms.',
+  'Rotational Squat Thruster':'Squat, then drive up into a rotational press, letting your hips and the bell rotate together.',
+  'Single Leg Lunge Jumps':'Small hopping lunges on one working leg — stay controlled, don’t just bounce.',
+  'Squat Curl → Pullover':'Squat down, curl the bell up, then pull it overhead and back in one continuous flow.',
+  'Squat Jump Clean to Press':'Squat jump, then clean the bell to your shoulder and press it overhead as you land.',
+  'Squat Jumps':'Squat down and explode straight up — land soft with bent knees to absorb the impact.',
+  'Squat Pullover → 2 Rotational Lunges':'Squat with a pullover reach, then perform two rotational lunges — keep the movement connected.',
+  'Squat Thruster':'Squat down, then drive up explosively and press the bell overhead in one motion.',
+  'Squat into HALO':'Squat down, then circle the kettlebell around your head as you stand up.',
+  'Squat → Pullover':'Squat down, then as you stand, pull the bell up and overhead in a wide arc.',
+  'Tip Toe Low Squat Jumps':'Small pulsing jumps from a low squat, staying on the balls of your feet.',
+  'Weighted Horse Stance Pulses':'Wide squat stance, holding the bell low — small pulses, staying low the whole time.',
+
+  '1 Kettle Push-Up → 1 Jumping Squat':'One push-up with hands on the kettlebell, then one explosive jumping squat — reset between each pair.',
+  '3 Chest Press + 3 Toe Taps':'Three chest presses lying down, then three toe taps holding the bell overhead.',
+  'Burpees':'Squat, kick back to a plank, push-up, jump feet in, and jump up — keep it fast but controlled.',
+  'Chest Press w/ Crunch':'Press the bell up from your chest, then crunch up as you lower it back down.',
+  'Close Grip + Wide Grip Push-Up':'Alternate hand positions between reps — close grip hits triceps more, wide grip hits chest more.',
+  'Diamond Push-Up Pulses (Knees)':'Hands close together under your chest, knees down if needed — small pulsing push-ups.',
+  'Full Push-Ups':'Straight line from head to heels, lower your chest to the floor, push back up without sagging your hips.',
+  'Half Burpees':'Squat, kick back to a plank, then jump your feet back in and stand — no push-up or jump at the top.',
+  'Mike Tyson Burpees (2 Push-Ups)':'Standard burpee but with two push-ups at the bottom instead of one.',
+  'Offset Push-Up → Knee Tuck':'One hand elevated on the kettlebell for the push-up, then tuck a knee toward your chest.',
+  'Offset Push-Up → Renegade Row':'Push-up with one hand on the bell, then row the bell up to your ribs without twisting your hips.',
+  'Offset Push-Ups':'One hand on the kettlebell, one on the floor — keep your hips square, don’t let them rotate.',
+  'Push-Up to Squat Press Ladder (Reach)':'Push-up, then stand and squat-press the bell overhead with a reach — build the ladder rep by rep.',
+  'Single Side Chest Press w/ Crunch':'Press the bell up from one side while lying down, then crunch — keep the working shoulder pinned down.',
+  'Single Side Chest Press w/ Glute Raise Hold':'Press from one side while holding your hips lifted in a glute bridge.',
+  'Single Side Chest Press w/ Knee Tuck':'Press the bell from one side while tucking the opposite knee toward your chest.',
+
+  'Alt Bear Crawl Rows':'In a bear crawl position, row the kettlebell to your ribs one side at a time without rotating your hips.',
+  'Alt Renegade Rows':'In a push-up plank over two kettlebells, row one side at a time — keep your hips square, don’t twist.',
+  'Bear Crawl Rows → Renegade Rows':'Row from a bear crawl stance, then transition into a plank for renegade rows.',
+  'Elbow in Elbow Out Row':'Row the bell with your elbow tucked in, then row again with your elbow flared out — feel the difference in your back.',
+  'Leaning Forward Rows':'Hinge forward at the hips and row the bell to your ribs, squeezing your shoulder blade back.',
+
+  '2 Woodchoppers → Goblet Squat Pulse':'Chop the bell diagonally across your body twice, then squat and pulse holding it at your chest.',
+  '3 Point Rotational Hammer Curls':'Curl the bell with a neutral grip while rotating your torso through three points.',
+  'Alt HALO w/ Rotation':'Circle the kettlebell around your head, alternating direction, while rotating your torso slightly.',
+  'Half Kneeling Windmills':'From a half-kneeling position, press the bell up and hinge sideways, reaching your other hand to the floor.',
+  'Kneeling Around The Worlds':'Kneeling tall, circle the kettlebell all the way around your torso, staying upright and braced.',
+  'Lateral Swings w/ Rotational Upper Press':'Swing the bell side to side at hip height, then press it overhead with a slight rotation.',
+  'Overhead Alt March':'Press the bell overhead and march in place, alternating knees — keep your arm locked and vertical.',
+  'Rotational Standing Shoulder Press':'Press the bell overhead while rotating your torso into the press — drive from your legs and core.',
+  'Two Curls → Two Overhead Extensions':'Two bicep curls, then two overhead triceps extensions — control the weight on the way down both times.'
+};
+
+/* ================= SEQUENCE BUILDER ================= */
+// Step types: 'ready' | 'exercise' | 'rest'
+function buildSequence(dayData){
+  const exercises = dayData.ex.map(parseExercise);
+  const rounds = dayData.rounds;
+  const seq = [];
+
+  const firstEx = exercises[0];
+  seq.push({
+    type:'ready', duration:GET_READY_SECONDS, round:1, totalRounds:rounds,
+    label:'Get Ready', side:null,
+    nextName: firstEx.name, nextSide: firstEx.sided ? 'RIGHT' : null
+  });
+
+  for(let r=1; r<=rounds; r++){
+    for(let i=0;i<exercises.length;i++){
+      const e = exercises[i];
+      const isLastExerciseInRound = (i === exercises.length-1);
+
+      if(e.sided){
+        seq.push({type:'exercise', duration:e.dur, round:r, totalRounds:rounds, label:e.name, side:'RIGHT', exerciseIndex:i});
+        seq.push({type:'rest', duration:SIDE_REST, round:r, totalRounds:rounds, label:'Rest', nextName:e.name, nextSide:'LEFT', exerciseIndex:i});
+        seq.push({type:'exercise', duration:e.dur, round:r, totalRounds:rounds, label:e.name, side:'LEFT', exerciseIndex:i});
+      } else {
+        seq.push({type:'exercise', duration:e.dur, round:r, totalRounds:rounds, label:e.name, side:null, exerciseIndex:i});
+      }
+
+      if(!isLastExerciseInRound){
+        const next = exercises[i+1];
+        seq.push({type:'rest', duration:EXERCISE_REST, round:r, totalRounds:rounds, label:'Rest',
+          nextName:next.name, nextSide: next.sided ? 'RIGHT' : null});
+      } else if(r < rounds){
+        const nextFirst = exercises[0];
+        seq.push({type:'rest', duration:ROUND_REST, round:r+1, totalRounds:rounds, label:'Rest',
+          nextName:nextFirst.name, nextSide: nextFirst.sided ? 'RIGHT' : null, roundRest:true});
+      }
+      // last exercise of last round: nothing follows -> straight to summary
+    }
+  }
+  seq.exerciseCount = exercises.length;
+  return seq;
+}
+
+/* ================= APP STATE ================= */
+const els = {
+  calendar: document.getElementById('screen-calendar'),
+  exercises: document.getElementById('screen-exercises'),
+  profile: document.getElementById('screen-profile'),
+  overview: document.getElementById('screen-overview'),
+  workout: document.getElementById('screen-workout'),
+  summary: document.getElementById('screen-summary'),
+  tabBar: document.getElementById('tabBar'),
+  tabCalendar: document.getElementById('tabCalendar'),
+  tabExercises: document.getElementById('tabExercises'),
+  tabProfile: document.getElementById('tabProfile'),
+  calTitle: document.getElementById('calTitle'),
+  todayCard: document.getElementById('todayCard'),
+  calGrid: document.getElementById('calGrid'),
+  calPrev: document.getElementById('calPrev'),
+  calNext: document.getElementById('calNext'),
+  monthPickerModal: document.getElementById('monthPickerModal'),
+  btnMpClose: document.getElementById('btnMpClose'),
+  mpYear: document.getElementById('mpYear'),
+  mpYearPrev: document.getElementById('mpYearPrev'),
+  mpYearNext: document.getElementById('mpYearNext'),
+  mpGrid: document.getElementById('mpGrid'),
+  exercisesList: document.getElementById('exercisesList'),
+  profileStats: document.getElementById('profileStats'),
+  profileCalGrid: document.getElementById('profileCalGrid'),
+  pwFill: document.getElementById('pwFill'),
+  pwValue: document.getElementById('pwValue'),
+  pwSub: document.getElementById('pwSub'),
+  btnSettings: document.getElementById('btnSettings'),
+  btnSettingsClose: document.getElementById('btnSettingsClose'),
+  settingsModal: document.getElementById('settingsModal'),
+  toggleSound: document.getElementById('toggleSound'),
+  toggleVibrate: document.getElementById('toggleVibrate'),
+  btnRestartPlan: document.getElementById('btnRestartPlan'),
+  btnOverviewBack: document.getElementById('btnOverviewBack'),
+  overviewDate: document.getElementById('overviewDate'),
+  overviewBody: document.getElementById('overviewBody'),
+  roundInfo: document.getElementById('roundInfo'),
+  progressDots: document.getElementById('progressDots'),
+  phaseLabel: document.getElementById('phaseLabel'),
+  exerciseName: document.getElementById('exerciseName'),
+  sideLabel: document.getElementById('sideLabel'),
+  timerDisplay: document.getElementById('timerDisplay'),
+  nextInfo: document.getElementById('nextInfo'),
+  btnExit: document.getElementById('btnExit'),
+  btnSkipBack: document.getElementById('btnSkipBack'),
+  btnSkipFwd: document.getElementById('btnSkipFwd'),
+  btnInfo: document.getElementById('btnInfo'),
+  btnInfoClose: document.getElementById('btnInfoClose'),
+  infoModal: document.getElementById('infoModal'),
+  infoName: document.getElementById('infoName'),
+  infoAnimWrap: document.getElementById('infoAnimWrap'),
+  infoCue: document.getElementById('infoCue'),
+  btnHome: document.getElementById('btnHome'),
+  summaryStats: document.getElementById('summaryStats'),
+};
+
+let selectedCalendarDate = null;
+let calViewDate = new Date();
+calViewDate.setDate(1);
+
+let session = null; // {week, day, seq, idx, remainingMs, endTime, paused, lastBeepSecond, forDate}
+
+const TAB_SCREENS = { calendar:'tabCalendar', exercises:'tabExercises', profile:'tabProfile' };
+
+function showScreen(name){
+  [els.calendar, els.exercises, els.profile, els.overview, els.workout, els.summary].forEach(s=>s.classList.remove('active'));
+  const map = { calendar:els.calendar, exercises:els.exercises, profile:els.profile, overview:els.overview, workout:els.workout, summary:els.summary };
+  map[name].classList.add('active');
+
+  if(TAB_SCREENS[name]){
+    els.tabBar.style.display = 'flex';
+    Object.values(TAB_SCREENS).forEach(id => els[id].classList.remove('selected'));
+    els[TAB_SCREENS[name]].classList.add('selected');
+  } else {
+    els.tabBar.style.display = 'none';
+  }
+}
+
+/* ---------- CALENDAR (home) RENDERING ---------- */
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderTodayCard(){
+  const todayStr = isoDate(new Date());
+  const sched = getScheduledWorkout(todayStr);
+  const card = els.todayCard;
+
+  if(!sched){
+    card.className = 'today-card rest';
+    card.innerHTML = '<div class="today-eyebrow">Today &middot; Rest Day</div><div class="today-meta">No workout scheduled &mdash; recover up.</div>';
+    return;
+  }
+
+  const { week, day } = sched;
+  const dayData = PROGRAM[week][day];
+  const seq = buildSequence(dayData);
+  const totalSeconds = seq.reduce((s,st)=>s+st.duration,0);
+  const done = isDateComplete(todayStr);
+
+  card.className = 'today-card' + (done ? ' done' : '');
+  card.innerHTML =
+    '<div class="today-eyebrow">Today &middot; Week ' + week + ' &middot; Day ' + day + (done ? ' &middot; Completed &#10003;' : '') + '</div>' +
+    '<div class="today-meta">' + dayData.rounds + ' Rounds &middot; ' + anticipatedMinutes(totalSeconds) + ' min</div>' +
+    '<button class="big-btn" id="btnStartToday">' + (done ? 'Do It Again' : 'Start Workout') + '</button>';
+
+  document.getElementById('btnStartToday').addEventListener('click', ()=>{
+    selectedCalendarDate = todayStr;
+    startWorkout(week, day);
+  });
+}
+
+function renderCalendar(){
+  renderTodayCard();
+  const year = calViewDate.getFullYear();
+  const month = calViewDate.getMonth();
+  els.calTitle.textContent = MONTH_NAMES[month] + ' ' + year;
+
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayStr = isoDate(new Date());
+
+  els.calGrid.innerHTML = '';
+  for(let i=0;i<firstWeekday;i++){
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    els.calGrid.appendChild(empty);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = isoDate(new Date(year, month, day));
+    const btn = document.createElement('button');
+    let cls = 'cal-day';
+    if(getScheduledWorkout(dateStr)) cls += ' scheduled';
+    if(isDateComplete(dateStr)) cls += ' done';
+    if(dateStr === todayStr) cls += ' today';
+    btn.className = cls;
+    btn.textContent = String(day);
+    btn.addEventListener('click', ()=> openOverview(dateStr));
+    els.calGrid.appendChild(btn);
+  }
+}
+
+/* ---------- MONTH PICKER (quick jump between months) ---------- */
+let mpViewYear = null;
+
+function openMonthPicker(){
+  mpViewYear = calViewDate.getFullYear();
+  renderMonthPicker();
+  els.monthPickerModal.classList.add('open');
+}
+function closeMonthPicker(){
+  els.monthPickerModal.classList.remove('open');
+}
+function renderMonthPicker(){
+  els.mpYear.textContent = String(mpViewYear);
+  const curYear = calViewDate.getFullYear();
+  const curMonth = calViewDate.getMonth();
+  const now = new Date();
+
+  els.mpGrid.innerHTML = '';
+  MONTH_NAMES.forEach((name, i)=>{
+    const btn = document.createElement('button');
+    let cls = 'mp-month';
+    if(mpViewYear === curYear && i === curMonth) cls += ' viewing';
+    else if(mpViewYear === now.getFullYear() && i === now.getMonth()) cls += ' current';
+    btn.className = cls;
+    btn.textContent = name.slice(0,3);
+    btn.addEventListener('click', ()=>{
+      calViewDate = new Date(mpViewYear, i, 1);
+      renderCalendar();
+      closeMonthPicker();
+    });
+    els.mpGrid.appendChild(btn);
+  });
+}
+
+/* ---------- BODY MAP (which zones this workout hits) ---------- */
+const GROUP_TO_BODYZONE = {
+  'Core & Rotation': ['bm-core'],
+  'Swings, Cleans & Hip Hinge': ['bm-hips'],
+  'Legs, Squats & Lunges': ['bm-legs'],
+  'Chest & Push': ['bm-chest','bm-shoulders'],
+  'Back & Pull': ['bm-traps'],
+  'Shoulders & Arms': ['bm-shoulders','bm-arms']
+  // 'Warm-Up & Mobility' intentionally maps to no zone — it's general, not targeted
+};
+
+const BODY_MAP_SVG =
+  '<svg class="body-map" viewBox="0 0 200 380" width="170" height="323" aria-hidden="true">' +
+    '<defs><filter id="bmGlow" x="-60%" y="-60%" width="220%" height="220%">' +
+      '<feGaussianBlur stdDeviation="5" result="blur"/>' +
+      '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+    '</filter></defs>' +
+    '<g filter="url(#bmGlow)">' +
+      '<line class="bm-zone bm-legs" x1="85" y1="216" x2="75" y2="345" stroke-width="24" stroke-linecap="round"/>' +
+      '<line class="bm-zone bm-legs" x1="115" y1="216" x2="125" y2="345" stroke-width="24" stroke-linecap="round"/>' +
+      '<rect class="bm-zone bm-hips" x="72" y="196" width="56" height="26" rx="13"/>' +
+      '<line class="bm-zone bm-arms" x1="40" y1="90" x2="30" y2="180" stroke-width="16" stroke-linecap="round"/>' +
+      '<line class="bm-zone bm-arms" x1="160" y1="90" x2="170" y2="180" stroke-width="16" stroke-linecap="round"/>' +
+      '<rect class="bm-zone bm-core" x="76" y="134" width="48" height="60" rx="14"/>' +
+      '<rect class="bm-zone bm-chest" x="68" y="76" width="64" height="56" rx="16"/>' +
+      '<line class="bm-zone bm-shoulders" x1="66" y1="84" x2="40" y2="90" stroke-width="20" stroke-linecap="round"/>' +
+      '<line class="bm-zone bm-shoulders" x1="134" y1="84" x2="160" y2="90" stroke-width="20" stroke-linecap="round"/>' +
+      '<rect class="bm-zone bm-traps" x="70" y="58" width="60" height="18" rx="9"/>' +
+      '<ellipse class="bm-zone bm-head" cx="100" cy="34" rx="22" ry="26"/>' +
+    '</g>' +
+  '</svg>';
+
+function renderBodyMap(dayData){
+  const zones = new Set();
+  dayData.ex.forEach(raw=>{
+    const group = EXERCISE_TO_GROUP[parseExercise(raw).name];
+    const z = GROUP_TO_BODYZONE[group];
+    if(z) z.forEach(zz=>zones.add(zz));
+  });
+  const temp = document.createElement('div');
+  temp.innerHTML = BODY_MAP_SVG;
+  zones.forEach(zClass=>{
+    temp.querySelectorAll('.'+zClass).forEach(el=>el.classList.add('hit'));
+  });
+  return '<div class="body-map-wrap">' + temp.innerHTML + '</div>';
+}
+
+/* ---------- DAY OVERVIEW (specific auto-scheduled workout) ---------- */
+function openOverview(dateStr){
+  selectedCalendarDate = dateStr;
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dateObj = new Date(y, m-1, d);
+  els.overviewDate.textContent = dateObj.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+
+  const sched = getScheduledWorkout(dateStr);
+  if(!sched){
+    els.overviewBody.innerHTML =
+      '<div class="overview-rest"><div class="rest-emoji">&#9749;</div>' +
+      '<div class="rest-title">Rest Day</div><div>No workout scheduled &mdash; recover up.</div></div>';
+    showScreen('overview');
+    return;
+  }
+
+  const { week, day } = sched;
+  const dayData = PROGRAM[week][day];
+  const exercises = dayData.ex.map(parseExercise);
+  const seq = buildSequence(dayData);
+  const totalSeconds = seq.reduce((sum,s)=>sum+s.duration,0);
+  const done = isDateComplete(dateStr);
+
+  let html = '<div class="overview-scroll">';
+  html += '<div class="overview-week-label">Week ' + week + ' &middot; Day ' + day + (done ? ' &middot; Completed &#10003;' : '') + '</div>';
+  html += '<div class="overview-rounds-badge">' + dayData.rounds + ' Rounds</div>';
+  html += renderBodyMap(dayData);
+  html += '<div class="overview-list">';
+  exercises.forEach(e=>{
+    html += '<div class="overview-item"><span class="oi-name">' + escapeHtml(e.name) +
+      (e.sided ? '<span class="oi-side">R/L</span>' : '') + '</span><span class="oi-dur">' + e.dur + 's</span></div>';
+  });
+  html += '</div></div>';
+  html += '<div class="overview-footer"><div class="overview-total"><span>Anticipated Time</span><b>' + anticipatedMinutes(totalSeconds) + ' min</b></div>' +
+    '<button class="big-btn" id="btnStartFromOverview">' + (done ? 'Do It Again' : 'Start Workout') + '</button></div>';
+
+  els.overviewBody.innerHTML = html;
+  document.getElementById('btnStartFromOverview').addEventListener('click', ()=> startWorkout(week, day));
+
+  showScreen('overview');
+}
+
+/* ---------- EXERCISE LIBRARY RENDERING ---------- */
+function renderExercises(){
+  els.exercisesList.innerHTML = '';
+  EXERCISE_GROUPS.forEach(group=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'acc-group';
+
+    const header = document.createElement('button');
+    header.className = 'acc-header';
+    header.innerHTML =
+      '<span>' + escapeHtml(group.title) + ' <span class="acc-count">(' + group.items.length + ')</span></span>' +
+      '<svg class="acc-chevron" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5z"/></svg>';
+    header.addEventListener('click', ()=> wrap.classList.toggle('open'));
+
+    const content = document.createElement('div');
+    content.className = 'acc-content';
+    const inner = document.createElement('div');
+    inner.className = 'acc-content-inner';
+    group.items.forEach(name=>{
+      const item = document.createElement('div');
+      item.className = 'acc-item';
+      item.textContent = name;
+      inner.appendChild(item);
+    });
+    content.appendChild(inner);
+
+    wrap.appendChild(header);
+    wrap.appendChild(content);
+    els.exercisesList.appendChild(wrap);
+  });
+}
+
+/* ---------- PROFILE RENDERING ---------- */
+function statTile(value, label){
+  return '<div class="stat-tile"><div class="stat-value">' + value + '</div><div class="stat-label">' + label + '</div></div>';
+}
+
+const PW_CIRCUMFERENCE = 2 * Math.PI * 52;
+function renderProgressWheel(){
+  els.pwFill.style.strokeDasharray = String(PW_CIRCUMFERENCE);
+  const week = getCurrentProgramWeek();
+  if(week === null){
+    els.pwFill.style.strokeDashoffset = String(PW_CIRCUMFERENCE);
+    els.pwValue.textContent = 'Not started';
+    els.pwSub.textContent = 'plan begins ' + getProgramStart();
+    return;
+  }
+  const fraction = week / 6;
+  els.pwFill.style.strokeDashoffset = String(PW_CIRCUMFERENCE * (1 - fraction));
+  els.pwValue.textContent = 'Week ' + week;
+  els.pwSub.textContent = 'of 6-week plan';
+}
+
+function renderProfile(){
+  renderProgressWheel();
+  const p = loadProgress();
+  const entries = Object.keys(p).map(k => ({ date:k, week:p[k].week, day:p[k].day }));
+  const totalWorkouts = entries.length;
+  const uniqueDone = new Set();
+  let totalSeconds = 0;
+  entries.forEach(e=>{
+    const dayData = PROGRAM[e.week] && PROGRAM[e.week][e.day];
+    if(dayData){
+      totalSeconds += buildSequence(dayData).reduce((s,st)=>s+st.duration,0);
+      uniqueDone.add(e.week+'-'+e.day);
+    }
+  });
+
+  const todaySched = getScheduledWorkout(isoDate(new Date()));
+  const weekLabel = todaySched ? ('Week ' + todaySched.week) : 'Rest Day';
+
+  els.profileStats.innerHTML =
+    statTile(String(totalWorkouts), 'Workouts Logged') +
+    statTile(fmtTime(totalSeconds), 'Total Time') +
+    statTile(uniqueDone.size + ' / 24', 'Programme Covered') +
+    statTile(weekLabel, 'This Week');
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const todayStr = isoDate(now);
+
+  els.profileCalGrid.innerHTML = '';
+  for(let i=0;i<firstWeekday;i++){
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    els.profileCalGrid.appendChild(empty);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = isoDate(new Date(year, month, day));
+    const cell = document.createElement('div');
+    let cls = 'cal-day';
+    if(getScheduledWorkout(dateStr)) cls += ' scheduled';
+    if(isDateComplete(dateStr)) cls += ' done';
+    if(dateStr === todayStr) cls += ' today';
+    cell.className = cls;
+    cell.textContent = String(day);
+    els.profileCalGrid.appendChild(cell);
+  }
+}
+
+/* ---------- SETTINGS (sound / vibration) ---------- */
+function soundEnabled(){ return localStorage.getItem('hiitSoundOn') !== 'false'; }
+function vibrateEnabled(){ return localStorage.getItem('hiitVibrateOn') !== 'false'; }
+function setSoundEnabled(v){ localStorage.setItem('hiitSoundOn', String(v)); }
+function setVibrateEnabled(v){ localStorage.setItem('hiitVibrateOn', String(v)); }
+
+function renderSettingsToggles(){
+  els.toggleSound.classList.toggle('on', soundEnabled());
+  els.toggleVibrate.classList.toggle('on', vibrateEnabled());
+}
+function openSettings(){
+  renderSettingsToggles();
+  els.settingsModal.classList.add('open');
+}
+function closeSettings(){
+  els.settingsModal.classList.remove('open');
+}
+function restartPlan(){
+  const ok = confirm('Restart the 6-week plan? This clears your workout history and resets Week 1 Day 1 to start on the day closest to today.');
+  if(!ok) return;
+  const newStart = isoDate(nearestMonday(new Date()));
+  localStorage.setItem('hiitProgramStart', newStart);
+  localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
+  saveProgress({});
+  closeSettings();
+  renderProfile();
+}
+
+/* ---------- AUDIO ---------- */
+let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx){
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if(Ctx) audioCtx = new Ctx();
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq, durMs, type, vol){
+  if(!audioCtx || !soundEnabled()) return;
+  const t0 = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol || 0.3, t0);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + durMs/1000);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + durMs/1000 + 0.03);
+}
+function tickBeep(){
+  beep(880, 110, 'square', 0.22);
+  if(navigator.vibrate && vibrateEnabled()) navigator.vibrate(40);
+}
+function startTone(){
+  beep(1100, 90, 'sine', 0.3);
+  setTimeout(()=>beep(1500, 160, 'sine', 0.3), 110);
+  if(navigator.vibrate && vibrateEnabled()) navigator.vibrate([70,40,70]);
+}
+
+/* ---------- WAKE LOCK ---------- */
+let wakeLock = null;
+async function acquireWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){ /* ignore - not fatal */ }
+}
+function releaseWakeLock(){
+  if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && session && !wakeLock){
+    acquireWakeLock();
+  }
+});
+
+/* ---------- WORKOUT ENGINE ---------- */
+function startWorkout(week, day){
+  ensureAudio();
+  const seq = buildSequence(PROGRAM[week][day]);
+  session = { week, day, seq, exerciseCount: seq.exerciseCount, idx:0, remainingMs:0, endTime:0, paused:false, lastBeepSecond:null, forDate: selectedCalendarDate };
+  acquireWakeLock();
+  showScreen('workout');
+  enterStep(0, {playStartTone:false});
+}
+
+// Dots track progress through the CURRENT round's exercise list (deduping R/L into one dot each),
+// not raw sequence steps, so a round with rest periods or two-sided exercises doesn't overflow the row.
+function renderDots(){
+  const total = session.exerciseCount;
+  const curStep = session.seq[session.idx];
+  const round = curStep.round;
+  els.progressDots.innerHTML = '';
+  for(let i=0;i<total;i++){
+    let firstIdx = -1, lastIdx = -1;
+    session.seq.forEach((s, idx)=>{
+      if(s.round===round && s.exerciseIndex===i && s.type==='exercise'){
+        if(firstIdx===-1) firstIdx = idx;
+        lastIdx = idx;
+      }
+    });
+    let cls = 'dot';
+    if(firstIdx !== -1){
+      if(session.idx > lastIdx) cls += ' filled';
+      else if(curStep.exerciseIndex === i) cls += ' current';
+    }
+    const dot = document.createElement('div');
+    dot.className = cls;
+    els.progressDots.appendChild(dot);
+  }
+}
+
+function enterStep(idx, opts){
+  opts = opts || {};
+  if(idx >= session.seq.length){
+    finishWorkout();
+    return;
+  }
+  session.idx = idx;
+  const step = session.seq[idx];
+  session.remainingMs = step.duration * 1000;
+  session.endTime = Date.now() + session.remainingMs;
+  session.lastBeepSecond = null;
+  session.paused = false;
+
+  const workoutEl = els.workout;
+  workoutEl.classList.remove('is-paused');
+  workoutEl.classList.remove('phase-ready','phase-exercise','phase-rest');
+  workoutEl.classList.add('phase-' + (step.type==='ready' ? 'ready' : step.type));
+
+  if(step.type === 'ready'){
+    els.phaseLabel.textContent = 'Get Ready';
+    els.exerciseName.textContent = step.nextName;
+    setSideLabel(step.nextSide);
+  } else if(step.type === 'exercise'){
+    els.phaseLabel.textContent = 'GO';
+    els.exerciseName.textContent = step.label;
+    setSideLabel(step.side);
+    if(opts.playStartTone !== false) startTone();
+  } else if(step.type === 'rest'){
+    els.phaseLabel.textContent = step.roundRest ? 'Rest — Round ' + step.round + ' next' : 'Rest';
+    els.exerciseName.textContent = 'Rest';
+    setSideLabel(null);
+  }
+
+  els.roundInfo.textContent = 'Round ' + step.round + ' of ' + step.totalRounds;
+  updateNextInfo(step);
+  renderDots();
+  fitExerciseText();
+  renderTimerDisplay();
+}
+
+function setSideLabel(side){
+  if(side){
+    els.sideLabel.textContent = side;
+    els.sideLabel.classList.remove('empty');
+  } else {
+    els.sideLabel.textContent = '';
+    els.sideLabel.classList.add('empty');
+  }
+}
+
+/* ---------- EXERCISE INFO MODAL ---------- */
+const STICK_FIGURE_SVG =
+  '<svg class="kb-anim" viewBox="0 0 100 120" width="150" height="180" aria-hidden="true">' +
+    '<g class="ka-leg-l"><line x1="50" y1="66" x2="36" y2="108" stroke-width="5" stroke-linecap="round"/></g>' +
+    '<g class="ka-leg-r"><line x1="50" y1="66" x2="64" y2="108" stroke-width="5" stroke-linecap="round"/></g>' +
+    '<g class="ka-upper">' +
+      '<line class="ka-torso" x1="50" y1="24" x2="50" y2="66" stroke-width="5" stroke-linecap="round"/>' +
+      '<g class="ka-arm-l"><line x1="50" y1="30" x2="30" y2="50" stroke-width="5" stroke-linecap="round"/></g>' +
+      '<g class="ka-arm-r"><line x1="50" y1="30" x2="70" y2="50" stroke-width="5" stroke-linecap="round"/></g>' +
+      '<circle class="ka-kb" cx="50" cy="58" r="4"/>' +
+      '<circle class="ka-head" cx="50" cy="14" r="9"/>' +
+    '</g>' +
+  '</svg>';
+
+function currentExerciseNameForInfo(){
+  if(!session) return null;
+  const step = session.seq[session.idx];
+  return step.type === 'exercise' ? step.label : step.nextName;
+}
+
+function openExerciseInfo(){
+  const name = currentExerciseNameForInfo();
+  if(!name) return;
+  if(session && !session.paused) togglePause();
+
+  const group = EXERCISE_TO_GROUP[name];
+  const animClass = GROUP_TO_ANIM[group] || 'anim-warmup';
+  const cue = EXERCISE_CUES[name] || 'Move with control and keep your core braced throughout.';
+
+  els.infoName.textContent = name;
+  els.infoCue.textContent = cue;
+  els.infoAnimWrap.className = 'info-anim-wrap ' + animClass;
+  els.infoAnimWrap.innerHTML = STICK_FIGURE_SVG;
+  els.infoModal.classList.add('open');
+}
+
+function closeExerciseInfo(){
+  els.infoModal.classList.remove('open');
+  if(session && session.paused) togglePause();
+}
+
+els.infoModal.addEventListener('click', (e)=>{
+  if(e.target === els.infoModal){
+    closeExerciseInfo();
+    e.stopPropagation();
+  }
+});
+
+function updateNextInfo(step){
+  if(step.type === 'rest'){
+    const sideTxt = step.nextSide ? ' — ' + step.nextSide : '';
+    els.nextInfo.innerHTML = 'Next: <b>' + escapeHtml(step.nextName) + sideTxt + '</b>';
+    return;
+  }
+  const next = session.seq[session.idx+1];
+  if(!next){
+    els.nextInfo.innerHTML = '<b>Last exercise — finish strong!</b>';
+  } else if(next.type === 'rest'){
+    const sideTxt = next.nextSide ? ' — ' + next.nextSide : '';
+    els.nextInfo.innerHTML = 'Next: <b>' + escapeHtml(next.nextName) + sideTxt + '</b>';
+  } else if(next.type === 'exercise'){
+    const sideTxt = next.side ? ' — ' + next.side : '';
+    els.nextInfo.innerHTML = 'Next: <b>' + escapeHtml(next.label) + sideTxt + '</b>';
+  }
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderTimerDisplay(){
+  const remaining = Math.max(0, session.endTime - Date.now());
+  els.timerDisplay.textContent = fmtTime(remaining/1000);
+}
+
+function fitExerciseText(){
+  const el = els.exerciseName;
+  const wrap = el.parentElement;
+  let size = 64;
+  el.style.fontSize = size + 'px';
+  const maxWidth = wrap.clientWidth * 0.98;
+  const maxHeight = wrap.clientHeight;
+  // allow shrink loop
+  let guard = 40;
+  while(size > 22 && guard-- > 0 && (el.scrollWidth > maxWidth || el.scrollHeight > maxHeight)){
+    size -= 3;
+    el.style.fontSize = size + 'px';
+  }
+}
+window.addEventListener('resize', ()=>{ if(session) fitExerciseText(); setVH(); });
+
+function tick(){
+  if(!session || session.paused) return;
+  const remaining = session.endTime - Date.now();
+  renderTimerDisplay();
+
+  const remainingSeconds = Math.ceil(remaining/1000);
+  if(remainingSeconds <= 3 && remainingSeconds >= 1 && remainingSeconds !== session.lastBeepSecond){
+    session.lastBeepSecond = remainingSeconds;
+    tickBeep();
+  }
+
+  if(remaining <= 0){
+    advanceStep();
+  }
+}
+
+function advanceStep(){
+  const nextIdx = session.idx + 1;
+  if(nextIdx >= session.seq.length){
+    finishWorkout();
+    return;
+  }
+  enterStep(nextIdx, {playStartTone:true});
+}
+
+function togglePause(){
+  if(!session) return;
+  ensureAudio();
+  if(session.paused){
+    session.endTime = Date.now() + session.remainingMs;
+    session.paused = false;
+  } else {
+    session.remainingMs = Math.max(0, session.endTime - Date.now());
+    session.paused = true;
+  }
+}
+
+function skip(direction){
+  if(!session) return;
+  ensureAudio();
+  const target = session.idx + direction;
+  if(target < 0) return;
+  if(target >= session.seq.length){ finishWorkout(); return; }
+  enterStep(target, {playStartTone: session.seq[target].type==='exercise'});
+}
+
+function finishWorkout(){
+  releaseWakeLock();
+  const { week, day, seq, forDate } = session;
+  markComplete(forDate, week, day);
+
+  const exerciseSteps = seq.filter(s=>s.type==='exercise');
+  const workSeconds = exerciseSteps.reduce((sum,s)=>sum+s.duration,0);
+  const totalSeconds = seq.reduce((sum,s)=>sum+s.duration,0);
+  const rounds = PROGRAM[week][day].rounds;
+
+  els.summaryStats.innerHTML =
+    statRow('Week / Day', 'W'+week+' &middot; D'+day) +
+    statRow('Rounds completed', String(rounds)) +
+    statRow('Exercise segments', String(exerciseSteps.length)) +
+    statRow('Work time', fmtTime(workSeconds)) +
+    statRow('Total time', fmtTime(totalSeconds));
+
+  session = null;
+  showScreen('summary');
+}
+function statRow(label, value){
+  return '<div class="stat-row"><span>'+label+'</span><span>'+value+'</span></div>';
+}
+
+function exitWorkout(){
+  if(!session) return;
+  const ok = confirm('End this workout? Progress for this session won’t be saved as complete.');
+  if(!ok) return;
+  releaseWakeLock();
+  session = null;
+  renderCalendar();
+  showScreen('calendar');
+}
+
+/* ---------- VIEWPORT HEIGHT FIX (iOS) ---------- */
+function setVH(){
+  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+}
+window.addEventListener('orientationchange', ()=> setTimeout(setVH, 200));
+setVH();
+
+/* ---------- WIRE UP ---------- */
+// Tap anywhere on the workout screen to pause/resume, except on an actual control button.
+els.workout.addEventListener('click', (e)=>{
+  if(e.target.closest('button')) return;
+  togglePause();
+});
+els.btnSkipBack.addEventListener('click', ()=> skip(-1));
+els.btnSkipFwd.addEventListener('click', ()=> skip(1));
+els.btnInfo.addEventListener('click', openExerciseInfo);
+els.btnInfoClose.addEventListener('click', closeExerciseInfo);
+els.btnExit.addEventListener('click', exitWorkout);
+els.btnHome.addEventListener('click', ()=>{ renderCalendar(); showScreen('calendar'); });
+els.calPrev.addEventListener('click', ()=>{ calViewDate.setMonth(calViewDate.getMonth()-1); renderCalendar(); });
+els.calNext.addEventListener('click', ()=>{ calViewDate.setMonth(calViewDate.getMonth()+1); renderCalendar(); });
+els.calTitle.addEventListener('click', openMonthPicker);
+els.btnMpClose.addEventListener('click', closeMonthPicker);
+els.mpYearPrev.addEventListener('click', ()=>{ mpViewYear -= 1; renderMonthPicker(); });
+els.mpYearNext.addEventListener('click', ()=>{ mpViewYear += 1; renderMonthPicker(); });
+els.monthPickerModal.addEventListener('click', (e)=>{ if(e.target === els.monthPickerModal) closeMonthPicker(); });
+els.btnSettings.addEventListener('click', openSettings);
+els.btnSettingsClose.addEventListener('click', closeSettings);
+els.settingsModal.addEventListener('click', (e)=>{ if(e.target === els.settingsModal) closeSettings(); });
+els.toggleSound.addEventListener('click', ()=>{ setSoundEnabled(!soundEnabled()); renderSettingsToggles(); });
+els.toggleVibrate.addEventListener('click', ()=>{ setVibrateEnabled(!vibrateEnabled()); renderSettingsToggles(); });
+els.btnRestartPlan.addEventListener('click', restartPlan);
+els.btnOverviewBack.addEventListener('click', ()=>{ renderCalendar(); showScreen('calendar'); });
+els.tabCalendar.addEventListener('click', ()=>{ renderCalendar(); showScreen('calendar'); });
+els.tabExercises.addEventListener('click', ()=> showScreen('exercises'));
+els.tabProfile.addEventListener('click', ()=>{ renderProfile(); showScreen('profile'); });
+
+// single global tick loop shared across the session's lifetime
+setInterval(()=>{ if(session) tick(); }, 150);
+
+renderCalendar();
+renderExercises();
+showScreen('calendar');
+})();
+</script>
+</body>
+</html>
