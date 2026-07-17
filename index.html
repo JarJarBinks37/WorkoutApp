@@ -152,6 +152,15 @@
   .music-title{ font-weight:800; font-size:0.98rem; }
   .music-sub{ color:var(--fg-dim); font-size:0.8rem; font-weight:600; }
   .music-chevron{ color:var(--fg-dim); flex:0 0 auto; }
+
+  .streak-card{
+    display:flex; align-items:center; gap:14px; margin:12px 18px 2px; padding:16px 18px; border-radius:18px;
+    background:linear-gradient(135deg, rgba(251,191,36,0.18), rgba(248,113,113,0.08));
+    border:2px solid rgba(251,191,36,0.35); }
+  .streak-icon{ font-size:1.9rem; flex:0 0 auto; line-height:1; }
+  .streak-text{ flex:1; min-width:0; }
+  .streak-value{ font-weight:800; font-size:1.05rem; }
+  .streak-best{ color:var(--fg-dim); font-size:0.82rem; font-weight:600; margin-top:2px; }
   .stat-tile .stat-label{ color:var(--fg-dim); font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
 
   .settings-modal{
@@ -403,6 +412,14 @@
       </div>
     </div>
     <div class="profile-stats" id="profileStats"></div>
+
+    <div class="streak-card">
+      <div class="streak-icon">&#128293;</div>
+      <div class="streak-text">
+        <div class="streak-value" id="streakValue">No Streak Yet</div>
+        <div class="streak-best" id="streakBest">Complete a workout to start</div>
+      </div>
+    </div>
 
     <a href="https://music.apple.com/" class="music-card" id="musicCard">
       <div class="music-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
@@ -890,6 +907,8 @@ const els = {
   profileStats: document.getElementById('profileStats'),
   pwFill: document.getElementById('pwFill'),
   pwValue: document.getElementById('pwValue'),
+  streakValue: document.getElementById('streakValue'),
+  streakBest: document.getElementById('streakBest'),
   btnSettings: document.getElementById('btnSettings'),
   btnSettingsClose: document.getElementById('btnSettingsClose'),
   settingsModal: document.getElementById('settingsModal'),
@@ -1213,8 +1232,51 @@ function renderProgressWheel(){
   els.pwValue.textContent = 'Week ' + week;
 }
 
+// Walks forward from the program start date to today, tracking consecutive completed
+// scheduled days. Today counts as "not yet broken" if it's scheduled but not done yet
+// (the day isn't over), so the streak doesn't falsely reset mid-day.
+function computeStreaks(){
+  const [sy,sm,sd] = getProgramStart().split('-').map(Number);
+  const cursor = new Date(sy, sm-1, sd);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  let run = 0, best = 0;
+  while(cursor <= today){
+    const dateStr = isoDate(cursor);
+    const sched = getScheduledWorkout(dateStr);
+    if(sched){
+      const done = isDateComplete(dateStr);
+      const isToday = cursor.getTime() === today.getTime();
+      if(done){
+        run++;
+        if(run > best) best = run;
+      } else if(!isToday){
+        run = 0;
+      }
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return { current: run, best };
+}
+
+function renderStreak(){
+  const { current, best } = computeStreaks();
+  els.streakValue.textContent = current > 0
+    ? (current + ' Day' + (current === 1 ? '' : 's') + ' Streak')
+    : 'No Streak Yet';
+  if(best === 0){
+    els.streakBest.textContent = 'Complete a workout to start';
+  } else if(current === best && current > 0){
+    els.streakBest.textContent = 'Personal best!';
+  } else {
+    els.streakBest.textContent = 'Best: ' + best + ' day' + (best === 1 ? '' : 's');
+  }
+}
+
 function renderProfile(){
   renderProgressWheel();
+  renderStreak();
   const p = loadProgress();
   const entries = Object.keys(p).map(k => ({ date:k, week:p[k].week, day:p[k].day }));
   const totalWorkouts = entries.length;
