@@ -132,7 +132,7 @@
   .pw-track{ fill:none; stroke:var(--border); stroke-width:10; }
   .pw-fill{ fill:none; stroke:var(--accent-exercise); stroke-width:10; stroke-linecap:round; transform:rotate(-90deg); transform-origin:60px 60px; transition:stroke-dashoffset 0.6s ease; }
   .pw-label{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .pw-value{ font-size:1.25rem; font-weight:900; }
+  .pw-value{ font-size:1.4rem; font-weight:900; }
   .pw-sub{ font-size:0.65rem; color:var(--fg-dim); text-transform:uppercase; font-weight:700; letter-spacing:0.03em; }
   .profile-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 18px 4px; }
   .stat-tile{ background:var(--bg-panel); border:2px solid var(--border); border-radius:16px; padding:14px 14px; display:flex; flex-direction:column; gap:4px; }
@@ -400,7 +400,6 @@
       </svg>
       <div class="pw-label">
         <div class="pw-value" id="pwValue">Week 1</div>
-        <div class="pw-sub" id="pwSub">of 6-week plan</div>
       </div>
     </div>
     <div class="profile-stats" id="profileStats"></div>
@@ -413,11 +412,6 @@
       </div>
       <svg class="music-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
     </a>
-
-    <div class="cal-weekdays">
-      <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-    </div>
-    <div class="cal-grid" id="profileCalGrid"></div>
 
     <div class="settings-modal" id="settingsModal">
       <div class="settings-card">
@@ -432,7 +426,7 @@
           <button id="toggleVibrate" class="settings-toggle" aria-label="Toggle vibration"></button>
         </div>
         <button id="btnRestartPlan" class="settings-danger-btn">Restart 6-Week Plan</button>
-        <div class="settings-about">Kettlebell HIIT Timer &middot; a 6-week kettlebell programme timer, built just for you.</div>
+        <div class="settings-about">Kettlebell HIIT Timer &middot; a 6-week kettlebell program timer, built just for you.</div>
       </div>
     </div>
   </section>
@@ -606,7 +600,7 @@ function isoDate(d){
 }
 
 /* ================= AUTO SCHEDULE ================= */
-// The programme trains 4 days/week in the same Mon/Tue/Thu/Fri rhythm (2 on, 1 off, 2 on, 2 off),
+// The program trains 4 days/week in the same Mon/Tue/Thu/Fri rhythm (2 on, 1 off, 2 on, 2 off),
 // but that 4-day pattern rotates to start on whatever weekday the plan actually began on, so
 // "Day 1" always lands on the day you started — not forced onto the next Monday.
 const BASE_WEEKDAY_ORDER = [1,2,4,5]; // Mon,Tue,Thu,Fri in calendar order
@@ -661,13 +655,13 @@ function getScheduledWorkout(dateStr){
 
   const msPerDay = 24*60*60*1000;
   const weeksElapsed = Math.round((thisAnchor - startAnchor) / (7*msPerDay));
-  if(weeksElapsed < 0) return null; // before programme start
+  if(weeksElapsed < 0) return null; // before program start
 
   const cycleWeek = ((weeksElapsed % 6) + 6) % 6;
   return { week: cycleWeek + 1, day: daySlot };
 }
 
-// Which of the 6 programme weeks "today" falls in, independent of whether today
+// Which of the 6 program weeks "today" falls in, independent of whether today
 // itself is a workout day — used for the profile progress wheel.
 function getCurrentProgramWeek(){
   const [sy,sm,sd] = getProgramStart().split('-').map(Number);
@@ -676,7 +670,7 @@ function getCurrentProgramWeek(){
   const thisAnchor = mostRecentWeekday(new Date(), startDow);
   const msPerDay = 24*60*60*1000;
   const weeksElapsed = Math.round((thisAnchor - startDate) / (7*msPerDay));
-  if(weeksElapsed < 0) return null; // programme hasn't started yet
+  if(weeksElapsed < 0) return null; // program hasn't started yet
   return (((weeksElapsed % 6) + 6) % 6) + 1;
 }
 
@@ -894,10 +888,8 @@ const els = {
   mpGrid: document.getElementById('mpGrid'),
   exercisesList: document.getElementById('exercisesList'),
   profileStats: document.getElementById('profileStats'),
-  profileCalGrid: document.getElementById('profileCalGrid'),
   pwFill: document.getElementById('pwFill'),
   pwValue: document.getElementById('pwValue'),
-  pwSub: document.getElementById('pwSub'),
   btnSettings: document.getElementById('btnSettings'),
   btnSettingsClose: document.getElementById('btnSettingsClose'),
   settingsModal: document.getElementById('settingsModal'),
@@ -1214,13 +1206,11 @@ function renderProgressWheel(){
   if(week === null){
     els.pwFill.style.strokeDashoffset = String(PW_CIRCUMFERENCE);
     els.pwValue.textContent = 'Not started';
-    els.pwSub.textContent = 'plan begins ' + getProgramStart();
     return;
   }
   const fraction = week / 6;
   els.pwFill.style.strokeDashoffset = String(PW_CIRCUMFERENCE * (1 - fraction));
   els.pwValue.textContent = 'Week ' + week;
-  els.pwSub.textContent = 'of 6-week plan';
 }
 
 function renderProfile(){
@@ -1244,33 +1234,8 @@ function renderProfile(){
   els.profileStats.innerHTML =
     statTile(String(totalWorkouts), 'Workouts Logged') +
     statTile(fmtTime(totalSeconds), 'Total Time') +
-    statTile(uniqueDone.size + ' / 24', 'Programme Covered') +
+    statTile(uniqueDone.size + ' / 24', 'Program Covered') +
     statTile(weekLabel, 'This Week');
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const firstWeekday = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const todayStr = isoDate(now);
-
-  els.profileCalGrid.innerHTML = '';
-  for(let i=0;i<firstWeekday;i++){
-    const empty = document.createElement('div');
-    empty.className = 'cal-day empty';
-    els.profileCalGrid.appendChild(empty);
-  }
-  for(let day=1; day<=daysInMonth; day++){
-    const dateStr = isoDate(new Date(year, month, day));
-    const cell = document.createElement('div');
-    let cls = 'cal-day';
-    if(getScheduledWorkout(dateStr)) cls += ' scheduled';
-    if(isDateComplete(dateStr)) cls += ' done';
-    if(dateStr === todayStr) cls += ' today';
-    cell.className = cls;
-    cell.textContent = String(day);
-    els.profileCalGrid.appendChild(cell);
-  }
 }
 
 /* ---------- SETTINGS (sound / vibration) ---------- */
