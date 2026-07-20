@@ -126,7 +126,7 @@
   .acc-item{ padding:12px 4px 12px 14px; color:var(--fg-dim); font-size:0.95rem; border-top:1px solid rgba(255,255,255,0.06); }
 
   /* ---------- PROFILE ---------- */
-  #screen-profile{ overflow-y:auto; }
+  #screen-profile{ overflow-y:auto; padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
   .progress-wheel-wrap{ position:relative; width:118px; height:118px; margin:14px auto 2px; }
   .progress-wheel{ overflow:visible; }
   .pw-track{ fill:none; stroke:var(--border); stroke-width:10; }
@@ -137,6 +137,17 @@
   .profile-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:8px 18px 4px; }
   .stat-tile{ background:var(--bg-panel); border:2px solid var(--border); border-radius:16px; padding:14px 14px; display:flex; flex-direction:column; gap:4px; }
   .stat-tile .stat-value{ font-size:1.4rem; font-weight:900; font-variant-numeric:tabular-nums; }
+  .profile-section{ margin:14px 18px 2px; }
+  .profile-section-title{ font-size:0.78rem; color:var(--fg-dim); font-weight:800; text-transform:uppercase; letter-spacing:0.06em; margin:0 2px 8px; }
+  .recent-list{ background:var(--bg-panel); border:2px solid var(--border); border-radius:18px; overflow:hidden; }
+  .recent-workout{ display:flex; align-items:center; gap:12px; padding:13px 14px; border-bottom:1px solid var(--border); }
+  .recent-workout:last-child{ border-bottom:none; }
+  .recent-check{ width:30px; height:30px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; background:rgba(52,211,153,0.14); color:var(--accent-exercise); font-weight:900; }
+  .recent-copy{ min-width:0; flex:1; }
+  .recent-title{ font-size:0.92rem; font-weight:800; }
+  .recent-meta{ color:var(--fg-dim); font-size:0.76rem; font-weight:650; margin-top:2px; }
+  .recent-time{ color:var(--fg-dim); font-size:0.8rem; font-weight:800; white-space:nowrap; }
+  .recent-empty{ padding:18px; color:var(--fg-dim); text-align:center; font-size:0.86rem; }
 
   .music-card{
     display:flex; align-items:center; gap:14px; margin:12px 18px 2px; padding:15px 16px; border-radius:18px;
@@ -211,6 +222,10 @@
   .overview-rounds-badge{
     align-self:center; background:var(--bg-panel); border:2px solid var(--accent-exercise); color:var(--accent-exercise);
     font-weight:800; font-size:1.1rem; padding:10px 24px; border-radius:999px; margin:10px 0 4px; }
+  .overview-breakdown{ display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:10px 0 2px; }
+  .overview-breakdown-item{ background:var(--bg-panel); border:1px solid var(--border); border-radius:15px; padding:11px 13px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .overview-breakdown-item span{ color:var(--fg-dim); font-size:0.76rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; }
+  .overview-breakdown-item b{ font-size:1rem; font-variant-numeric:tabular-nums; }
   .body-map-wrap{ display:flex; flex-direction:column; align-items:center; padding:8px 0 18px; }
   .body-map{
     display:block; width:min(100%,340px); height:auto; aspect-ratio:360/525; overflow:visible;
@@ -229,9 +244,14 @@
   .body-map-legend i{ width:8px; height:8px; border-radius:50%; display:block; }
   .body-map-legend .legend-blue{ background:#5dbdff; box-shadow:0 0 8px rgba(93,189,255,0.9); }
   .body-map-legend .legend-red{ background:#ff565b; box-shadow:0 0 9px rgba(255,86,91,0.9); }
+  .target-chips{ display:flex; flex-wrap:wrap; justify-content:center; gap:7px; padding:0 2px 12px; }
+  .target-chip{ background:rgba(255,86,91,0.11); color:#ff9b9e; border:1px solid rgba(255,86,91,0.3); border-radius:999px; padding:7px 10px; font-size:0.72rem; font-weight:800; }
   @media (prefers-reduced-motion:reduce){ .bm-target-zone{ animation:none; opacity:1; } }
   .overview-list{ display:flex; flex-direction:column; }
-  .overview-item{ display:flex; justify-content:space-between; align-items:baseline; padding:14px 4px; border-bottom:1px solid var(--border); }
+  .overview-item{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 4px; border:0; border-bottom:1px solid var(--border); background:none; color:var(--fg); text-align:left; }
+  .overview-item:active{ opacity:0.65; }
+  .oi-copy{ min-width:0; display:flex; align-items:center; gap:7px; }
+  .oi-info{ width:22px; height:22px; border-radius:50%; flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; border:1px solid rgba(90,169,255,0.38); color:var(--accent-ready); font-size:0.72rem; font-weight:900; }
   .overview-item .oi-name{ font-weight:700; font-size:1rem; }
   .overview-item .oi-side{ color:var(--fg-dim); font-size:0.75rem; font-weight:700; text-transform:uppercase; margin-left:6px; }
   .overview-item .oi-dur{ color:var(--fg-dim); font-variant-numeric:tabular-nums; font-weight:700; flex:0 0 auto; }
@@ -428,6 +448,11 @@
       </div>
     </div>
 
+    <div class="profile-section">
+      <div class="profile-section-title">Recent Workouts</div>
+      <div class="recent-list" id="recentWorkouts"></div>
+    </div>
+
     <a href="https://music.apple.com/us/playlist/lift/pl.u-Zmbl3RGS0zVxllp" class="music-card" id="musicCard">
       <div class="music-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg></div>
       <div class="music-text">
@@ -496,14 +521,6 @@
       <button id="btnSkipFwd" class="ctrl-btn" aria-label="Skip forward"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M4 6v12l8.5-6L4 6zm10 0v12l8.5-6L14 6z"/></svg></button>
     </div>
 
-    <div class="info-modal" id="infoModal">
-      <div class="info-card">
-        <button id="btnInfoClose" class="info-close" aria-label="Close">&#10005;</button>
-        <div class="info-name" id="infoName">Exercise Name</div>
-        <div class="info-anim-wrap" id="infoAnimWrap"></div>
-        <div class="info-cue" id="infoCue">Form cue goes here.</div>
-      </div>
-    </div>
   </section>
 
   <section id="screen-summary" class="screen">
@@ -514,6 +531,15 @@
       <button id="btnHome" class="big-btn">Back to Home</button>
     </div>
   </section>
+
+  <div class="info-modal" id="infoModal">
+    <div class="info-card">
+      <button id="btnInfoClose" class="info-close" aria-label="Close">&#10005;</button>
+      <div class="info-name" id="infoName">Exercise Name</div>
+      <div class="info-anim-wrap" id="infoAnimWrap"></div>
+      <div class="info-cue" id="infoCue">Form cue goes here.</div>
+    </div>
+  </div>
 
   <div class="confirm-modal" id="confirmModal">
     <div class="confirm-card">
@@ -917,6 +943,7 @@ const els = {
   pwValue: document.getElementById('pwValue'),
   streakValue: document.getElementById('streakValue'),
   streakBest: document.getElementById('streakBest'),
+  recentWorkouts: document.getElementById('recentWorkouts'),
   btnSettings: document.getElementById('btnSettings'),
   btnSettingsClose: document.getElementById('btnSettingsClose'),
   settingsModal: document.getElementById('settingsModal'),
@@ -1081,14 +1108,30 @@ const GROUP_TO_BODYZONE = {
 };
 
 const BODY_MAP_ASSET = 'assets/body-map.svg';
+const BODY_ZONE_LABELS = {
+  'chest':'Chest', 'shoulders':'Shoulders', 'arms':'Arms', 'upper-back':'Upper Back',
+  'core':'Core', 'glutes':'Glutes', 'quads':'Quads', 'hamstrings':'Hamstrings', 'calves':'Calves'
+};
+const BODY_ZONE_ORDER = ['chest','shoulders','arms','upper-back','core','glutes','quads','hamstrings','calves'];
 
-function renderBodyMap(dayData){
+function getBodyZones(dayData){
   const zones = new Set();
   dayData.ex.forEach(raw=>{
     const group = EXERCISE_TO_GROUP[parseExercise(raw).name];
     const z = GROUP_TO_BODYZONE[group];
     if(z) z.forEach(zz=>zones.add(zz));
   });
+  return BODY_ZONE_ORDER.filter(zone=>zones.has(zone));
+}
+
+function renderBodyZoneChips(dayData){
+  return '<div class="target-chips" aria-label="Targeted body areas">' + getBodyZones(dayData).map(zone=>
+    '<span class="target-chip">' + BODY_ZONE_LABELS[zone] + '</span>'
+  ).join('') + '</div>';
+}
+
+function renderBodyMap(dayData){
+  const zones = getBodyZones(dayData);
   const targets = Array.from(zones).map(zone=>
     '<use class="bm-target-zone" href="' + BODY_MAP_ASSET + '#zone-' + zone + '" x="0" y="0" width="360" height="525"></use>'
   ).join('');
@@ -1125,16 +1168,21 @@ function openOverview(dateStr){
   const exercises = dayData.ex.map(parseExercise);
   const seq = buildSequence(dayData);
   const totalSeconds = seq.reduce((sum,s)=>sum+s.duration,0);
+  const workSeconds = seq.filter(s=>s.type === 'exercise').reduce((sum,s)=>sum+s.duration,0);
+  const restSeconds = seq.filter(s=>s.type === 'rest').reduce((sum,s)=>sum+s.duration,0);
   const done = isDateComplete(dateStr);
 
   let html = '<div class="overview-scroll">';
   html += '<div class="overview-week-label">Week ' + week + ' &middot; Day ' + day + (done ? ' &middot; Completed &#10003;' : '') + '</div>';
   html += '<div class="overview-rounds-badge">' + dayData.rounds + ' Rounds</div>';
+  html += '<div class="overview-breakdown"><div class="overview-breakdown-item"><span>Work</span><b>' + fmtTime(workSeconds) + '</b></div>' +
+    '<div class="overview-breakdown-item"><span>Rest</span><b>' + fmtTime(restSeconds) + '</b></div></div>';
   html += renderBodyMap(dayData);
+  html += renderBodyZoneChips(dayData);
   html += '<div class="overview-list">';
   exercises.forEach(e=>{
-    html += '<div class="overview-item"><span class="oi-name">' + escapeHtml(e.name) +
-      (e.sided ? '<span class="oi-side">R/L</span>' : '') + '</span><span class="oi-dur">' + e.dur + 's</span></div>';
+    html += '<button type="button" class="overview-item" data-exercise-cue="' + encodeURIComponent(e.name) + '"><span class="oi-copy"><span class="oi-info">i</span><span class="oi-name">' + escapeHtml(e.name) +
+      (e.sided ? '<span class="oi-side">R/L</span>' : '') + '</span></span><span class="oi-dur">' + e.dur + 's</span></button>';
   });
   html += '</div></div>';
   html += '<div class="overview-footer"><div class="overview-total"><span>Anticipated Time</span><b>' + anticipatedMinutes(totalSeconds) + ' min</b></div>' +
@@ -1142,6 +1190,9 @@ function openOverview(dateStr){
 
   els.overviewBody.innerHTML = html;
   document.getElementById('btnStartFromOverview').addEventListener('click', ()=> startWorkout(week, day));
+  els.overviewBody.querySelectorAll('[data-exercise-cue]').forEach(btn=>{
+    btn.addEventListener('click', ()=> showExerciseInfo(decodeURIComponent(btn.dataset.exerciseCue), false));
+  });
 
   showScreen('overview');
 }
@@ -1243,8 +1294,7 @@ function renderProfile(){
   renderProgressWheel();
   renderStreak();
   const p = loadProgress();
-  const entries = Object.keys(p).map(k => ({ date:k, week:p[k].week, day:p[k].day }));
-  const totalWorkouts = entries.length;
+  const entries = Object.keys(p).map(k => ({ date:k, week:p[k].week, day:p[k].day, at:p[k].at || 0 }));
   const uniqueDone = new Set();
   let totalSeconds = 0;
   entries.forEach(e=>{
@@ -1255,14 +1305,45 @@ function renderProfile(){
     }
   });
 
-  const todaySched = getScheduledWorkout(isoDate(new Date()));
-  const weekLabel = todaySched ? ('Week ' + todaySched.week) : 'Rest Day';
+  const [sy,sm,sd] = getProgramStart().split('-').map(Number);
+  const startDate = new Date(sy,sm-1,sd);
+  const weekAnchor = mostRecentWeekday(new Date(), startDate.getDay());
+  let weeklyDone = 0, weeklyTotal = 0;
+  for(let offset=0; offset<7; offset++){
+    const d = new Date(weekAnchor);
+    d.setDate(weekAnchor.getDate() + offset);
+    const dateStr = isoDate(d);
+    if(getScheduledWorkout(dateStr)){
+      weeklyTotal++;
+      if(isDateComplete(dateStr)) weeklyDone++;
+    }
+  }
+
+  const streaks = computeStreaks();
+  const totalMinutes = Math.round(totalSeconds / 60);
+  const programPct = Math.round((uniqueDone.size / 24) * 100);
 
   els.profileStats.innerHTML =
-    statTile(String(totalWorkouts), 'Workouts Logged') +
-    statTile(fmtTime(totalSeconds), 'Total Time') +
-    statTile(uniqueDone.size + ' / 24', 'Program Covered') +
-    statTile(weekLabel, 'This Week');
+    statTile(weeklyDone + ' of ' + weeklyTotal, 'This Week') +
+    statTile(programPct + '%', 'Program Complete') +
+    statTile(totalMinutes + ' min', 'Total Minutes') +
+    statTile(String(streaks.best), 'Longest Streak');
+
+  const recent = entries.sort((a,b)=> b.date.localeCompare(a.date) || b.at-a.at).slice(0,5);
+  if(!recent.length){
+    els.recentWorkouts.innerHTML = '<div class="recent-empty">Completed workouts will appear here.</div>';
+  } else {
+    els.recentWorkouts.innerHTML = recent.map(e=>{
+      const [y,m,d] = e.date.split('-').map(Number);
+      const dateLabel = new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      const dayData = PROGRAM[e.week] && PROGRAM[e.week][e.day];
+      const mins = dayData ? anticipatedMinutes(buildSequence(dayData).reduce((sum,step)=>sum+step.duration,0)) : 0;
+      return '<div class="recent-workout"><div class="recent-check">&#10003;</div><div class="recent-copy">' +
+        '<div class="recent-title">Week ' + e.week + ' &middot; Day ' + e.day + '</div>' +
+        '<div class="recent-meta">' + dateLabel + '</div></div>' +
+        '<div class="recent-time">' + mins + ' min</div></div>';
+    }).join('');
+  }
 }
 
 /* ---------- SETTINGS (sound / vibration) ---------- */
@@ -1470,10 +1551,11 @@ function currentExerciseNameForInfo(){
   return step.type === 'exercise' ? step.label : step.nextName;
 }
 
-function openExerciseInfo(){
-  const name = currentExerciseNameForInfo();
+let resumeAfterExerciseInfo = false;
+function showExerciseInfo(name, pauseWorkout){
   if(!name) return;
-  if(session && !session.paused) togglePause();
+  resumeAfterExerciseInfo = !!(pauseWorkout && session && !session.paused);
+  if(resumeAfterExerciseInfo) togglePause();
 
   const group = EXERCISE_TO_GROUP[name];
   const animClass = GROUP_TO_ANIM[group] || 'anim-warmup';
@@ -1486,9 +1568,15 @@ function openExerciseInfo(){
   els.infoModal.classList.add('open');
 }
 
+function openExerciseInfo(){
+  const name = currentExerciseNameForInfo();
+  showExerciseInfo(name, true);
+}
+
 function closeExerciseInfo(){
   els.infoModal.classList.remove('open');
-  if(session && session.paused) togglePause();
+  if(resumeAfterExerciseInfo && session && session.paused) togglePause();
+  resumeAfterExerciseInfo = false;
 }
 
 els.infoModal.addEventListener('click', (e)=>{
