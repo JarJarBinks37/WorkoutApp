@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 525">
+  <defs>
+    <linearGradient id="body-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#72cbff" stop-opacity=".34"/>
+      <stop offset=".5" stop-color="#218bd3" stop-opacity=".17"/>
+      <stop offset="1" stop-color="#58baff" stop-opacity=".29"/>
+    </linearGradient>
+    <filter id="blue-glow" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="2.2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <symbol id="body-base" viewBox="0 0 360 525">
+      <text x="101" y="18" fill="#8fa1b2" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="10" font-weight="800" letter-spacing="2" text-anchor="middle">FRONT</text>
+      <text x="259" y="18" fill="#8fa1b2" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="10" font-weight="800" letter-spacing="2" text-anchor="middle">BACK</text>
+
+      <!-- Front silhouette -->
+      <g fill="url(#body-blue)" stroke="#6fc6ff" stroke-opacity=".38" stroke-width="1.2">
+        <path d="M83 57Q84 39 94 32Q101 27 108 32Q118 39 119 57Q119 72 111 81Q108 85 106 88V94H96V88Q93 85 90 81Q83 72 83 57Z"/>
+        <path d="M91 88Q101 94 111 88L114 98Q127 98 137 108Q143 117 141 131Q137 145 134 162Q132 187 130 214Q128 231 122 246Q120 253 121 261Q112 268 101 268Q90 268 81 261Q82 253 80 246Q74 231 72 214Q70 187 68 162Q65 145 61 131Q59 117 65 108Q75 98 88 98Z"/>
+        <path d="M67 105Q52 109 45 125Q40 138 39 153L27 220Q24 234 29 246Q31 253 36 260Q40 265 44 261Q48 257 46 249L43 237L54 190Q60 166 67 145L77 116Z"/>
+        <path d="M135 105Q150 109 157 125Q162 138 163 153L175 220Q178 234 173 246Q171 253 166 260Q162 265 158 261Q154 257 156 249L159 237L148 190Q142 166 135 145L125 116Z"/>
+        <path d="M81 252Q72 267 69 291Q68 313 74 338Q76 350 73 365L67 437Q65 460 68 481L64 491Q61 498 68 502Q77 505 84 499L90 492Q93 488 88 483L89 453L95 378Q98 349 99 323L101 267Z"/>
+        <path d="M121 252Q130 267 133 291Q134 313 128 338Q126 350 129 365L135 437Q137 460 134 481L138 491Q141 498 134 502Q125 505 118 499L112 492Q109 488 114 483L113 453L107 378Q104 349 103 323L101 267Z"/>
+
+        <!-- Back silhouette -->
+        <path d="M241 57Q242 39 252 32Q259 27 266 32Q276 39 277 57Q277 72 269 81Q266 85 264 88V94H254V88Q251 85 248 81Q241 72 241 57Z"/>
+        <path d="M249 88Q259 94 269 88L272 98Q285 98 295 108Q301 117 299 131Q295 145 292 162Q290 187 288 214Q286 231 280 246Q278 253 279 261Q270 268 259 268Q248 268 239 261Q240 253 238 246Q232 231 230 214Q228 187 226 162Q223 145 219 131Q217 117 223 108Q233 98 246 98Z"/>
+        <path d="M225 105Q210 109 203 125Q198 138 197 153L185 220Q182 234 187 246Q189 253 194 260Q198 265 202 261Q206 257 204 249L201 237L212 190Q218 166 225 145L235 116Z"/>
+        <path d="M293 105Q308 109 315 125Q320 138 321 153L333 220Q336 234 331 246Q329 253 324 260Q320 265 316 261Q312 257 314 249L317 237L306 190Q300 166 293 145L283 116Z"/>
+        <path d="M239 252Q230 267 227 291Q226 313 232 338Q234 350 231 365L225 437Q223 460 226 481L222 491Q219 498 226 502Q235 505 242 499L248 492Q251 488 246 483L247 453L253 378Q256 349 257 323L259 267Z"/>
+        <path d="M279 252Q288 267 291 291Q292 313 286 338Q284 350 287 365L293 437Q295 460 292 481L296 491Q299 498 292 502Q283 505 276 499L270 492Q267 488 272 483L271 453L265 378Q262 349 261 323L259 267Z"/>
+      </g>
+
+      <!-- Subtle anatomical contours -->
+      <g fill="none" stroke="#7fcaff" stroke-opacity=".18" stroke-width="1">
+        <path d="M101 94V253M71 126Q101 139 131 126M76 162Q101 171 126 162M80 217Q101 224 122 217M69 291Q83 300 98 294M133 291Q119 300 104 294"/>
+        <path d="M259 94V253M229 126Q259 139 289 126M234 162Q259 171 284 162M238 217Q259 224 280 217M227 291Q241 300 256 294M291 291Q277 300 262 294"/>
+      </g>
+
+      <!-- Glowing front/back skeletons -->
+      <g fill="none" stroke="#dcf4ff" stroke-opacity=".79" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#blue-glow)">
+        <ellipse cx="101" cy="61" rx="13" ry="17"/><path d="M93 62Q101 68 109 62M96 75H106M101 88V236M78 105L101 96L124 105"/>
+        <path stroke-width="1.1" stroke-opacity=".67" d="M84 112Q101 100 118 112M80 121Q101 108 122 121M78 131Q101 117 124 131M78 142Q101 127 124 142M80 153Q101 138 122 153"/>
+        <path d="M83 213Q101 229 119 213L122 235Q101 247 80 235ZM78 105L58 158L43 235M124 105L144 158L159 235M91 237L83 342L78 477M111 237L119 342L124 477"/>
+        <ellipse cx="259" cy="61" rx="13" ry="17"/><path d="M250 70Q259 74 268 70M259 88V236M236 105L259 96L282 105"/>
+        <path stroke-width="1.1" stroke-opacity=".67" d="M242 112Q259 104 276 112M238 123Q259 113 280 123M237 135Q259 124 281 135M239 147Q259 137 279 147"/>
+        <path d="M241 213Q259 229 277 213L280 235Q259 247 238 235ZM236 105L216 158L201 235M282 105L302 158L317 235M249 237L241 342L236 477M269 237L277 342L282 477"/>
+      </g>
+      <g fill="#ecfaff" fill-opacity=".88" filter="url(#blue-glow)">
+        <circle cx="58" cy="158" r="3"/><circle cx="144" cy="158" r="3"/><circle cx="83" cy="342" r="3.4"/><circle cx="119" cy="342" r="3.4"/>
+        <circle cx="216" cy="158" r="3"/><circle cx="302" cy="158" r="3"/><circle cx="241" cy="342" r="3.4"/><circle cx="277" cy="342" r="3.4"/>
+      </g>
+    </symbol>
+
+    <!-- Each target is independently addressable from index.html. -->
+    <symbol id="zone-chest" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M82 108Q91 99 99 106V142Q85 143 77 130ZM120 108Q111 99 103 106V142Q117 143 125 130Z"/>
+    </symbol>
+    <symbol id="zone-shoulders" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M69 104Q75 90 88 94L83 120Q72 122 67 115ZM133 104Q127 90 114 94L119 120Q130 122 135 115ZM227 104Q233 90 246 94L241 120Q230 122 225 115ZM291 104Q285 90 272 94L277 120Q288 122 293 115Z"/>
+    </symbol>
+    <symbol id="zone-arms" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M60 126Q70 128 68 157L59 197Q52 193 53 181ZM142 126Q132 128 134 157L143 197Q150 193 149 181ZM218 126Q228 128 226 157L217 197Q210 193 211 181ZM300 126Q290 128 292 157L301 197Q308 193 307 181Z"/>
+    </symbol>
+    <symbol id="zone-upper-back" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M241 101Q259 91 277 101L284 142Q274 166 259 177Q244 166 234 142Z"/>
+    </symbol>
+    <symbol id="zone-core" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M85 149Q101 143 117 149L118 211Q101 222 84 211Z"/>
+      <path fill="#ffd1d2" fill-opacity=".3" d="M89 153H99V174H88ZM103 153H113L114 174H103ZM88 179H99V198H87ZM103 179H114L115 198H103Z"/>
+    </symbol>
+    <symbol id="zone-glutes" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M239 213Q252 207 257 220L256 255Q242 260 236 244ZM279 213Q266 207 261 220L262 255Q276 260 282 244Z"/>
+    </symbol>
+    <symbol id="zone-quads" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M78 263Q91 258 97 271L91 342Q83 365 76 340ZM124 263Q111 258 105 271L111 342Q119 365 126 340Z"/>
+    </symbol>
+    <symbol id="zone-hamstrings" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M238 263Q251 259 256 273L249 342Q242 359 234 339ZM280 263Q267 259 262 273L269 342Q276 359 284 339Z"/>
+    </symbol>
+    <symbol id="zone-calves" viewBox="0 0 360 525">
+      <path fill="currentColor" d="M75 354Q87 363 86 409L78 461Q70 450 72 410ZM127 354Q115 363 116 409L124 461Q132 450 130 410ZM233 354Q246 363 244 414L236 461Q228 449 230 408ZM285 354Q272 363 274 414L282 461Q290 449 288 408Z"/>
+    </symbol>
+  </defs>
+</svg>

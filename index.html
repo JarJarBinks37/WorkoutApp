@@ -211,18 +211,25 @@
   .overview-rounds-badge{
     align-self:center; background:var(--bg-panel); border:2px solid var(--accent-exercise); color:var(--accent-exercise);
     font-weight:800; font-size:1.1rem; padding:10px 24px; border-radius:999px; margin:10px 0 4px; }
-  .body-map-wrap{ display:flex; justify-content:center; padding:6px 0 16px; }
-  .body-map{ overflow:visible; background:radial-gradient(circle at 50% 30%, rgba(90,169,255,0.06), transparent 70%); border-radius:24px; }
-  .bm-silhouette path, .bm-silhouette ellipse{ fill:rgba(90,169,255,0.07); stroke:rgba(90,169,255,0.25); stroke-width:1.5; }
-  .bm-spine{ stroke:rgba(90,169,255,0.45); fill:none; }
-  .bm-joint{ fill:rgba(90,169,255,0.75); }
-  .bm-head{ fill:rgba(90,169,255,0.75); }
-  .bm-zone{ stroke:rgba(90,169,255,0.7); fill:none; transition:fill 0.4s ease, stroke 0.4s ease; }
-  .bm-core, .bm-hips{ fill:rgba(90,169,255,0.14); }
-  .bm-shoulders{ fill:rgba(90,169,255,0.55); stroke:none; }
-  .bm-zone.hit{ stroke:rgba(248,113,113,0.95); }
-  .bm-core.hit, .bm-hips.hit{ fill:rgba(248,113,113,0.3); }
-  .bm-shoulders.hit{ fill:rgba(248,113,113,0.95); stroke:none; }
+  .body-map-wrap{ display:flex; flex-direction:column; align-items:center; padding:8px 0 18px; }
+  .body-map{
+    display:block; width:min(100%,340px); height:auto; aspect-ratio:360/525; overflow:visible;
+    background:radial-gradient(circle at 50% 24%, rgba(52,146,225,0.13), rgba(12,20,29,0.2) 48%, transparent 74%);
+    border:1px solid rgba(90,169,255,0.1); border-radius:24px;
+  }
+  .bm-target-zone{
+    color:#ff565b; opacity:0.85;
+    filter:drop-shadow(0 0 3px rgba(255,86,91,0.95)) drop-shadow(0 0 8px rgba(255,55,61,0.58));
+    animation:bmTargetPulse 1.8s ease-in-out infinite;
+  }
+  .bm-target-zone:nth-of-type(even){ animation-delay:-0.55s; }
+  @keyframes bmTargetPulse{ 0%,100%{opacity:0.68} 50%{opacity:1} }
+  .body-map-legend{ display:flex; justify-content:center; gap:22px; padding-top:10px; color:var(--fg-dim); font-size:0.72rem; font-weight:750; }
+  .body-map-legend span{ display:flex; align-items:center; gap:7px; }
+  .body-map-legend i{ width:8px; height:8px; border-radius:50%; display:block; }
+  .body-map-legend .legend-blue{ background:#5dbdff; box-shadow:0 0 8px rgba(93,189,255,0.9); }
+  .body-map-legend .legend-red{ background:#ff565b; box-shadow:0 0 9px rgba(255,86,91,0.9); }
+  @media (prefers-reduced-motion:reduce){ .bm-target-zone{ animation:none; opacity:1; } }
   .overview-list{ display:flex; flex-direction:column; }
   .overview-item{ display:flex; justify-content:space-between; align-items:baseline; padding:14px 4px; border-bottom:1px solid var(--border); }
   .overview-item .oi-name{ font-weight:700; font-size:1rem; }
@@ -1064,66 +1071,16 @@ function renderMonthPicker(){
 
 /* ---------- BODY MAP (which zones this workout hits) ---------- */
 const GROUP_TO_BODYZONE = {
-  'Core & Rotation': ['bm-core'],
-  'Swings, Cleans & Hip Hinge': ['bm-hips'],
-  'Legs, Squats & Lunges': ['bm-legs'],
-  'Chest & Push': ['bm-chest','bm-shoulders'],
-  'Back & Pull': ['bm-traps'],
-  'Shoulders & Arms': ['bm-shoulders','bm-arms']
+  'Core & Rotation': ['core'],
+  'Swings, Cleans & Hip Hinge': ['core','glutes','hamstrings','upper-back'],
+  'Legs, Squats & Lunges': ['glutes','quads','hamstrings','calves'],
+  'Chest & Push': ['chest','shoulders','arms'],
+  'Back & Pull': ['upper-back','arms'],
+  'Shoulders & Arms': ['shoulders','arms','upper-back']
   // 'Warm-Up & Mobility' intentionally maps to no zone — it's general, not targeted
 };
 
-const BODY_MAP_SVG =
-  '<svg class="body-map" viewBox="0 0 200 380" width="170" height="323" aria-hidden="true">' +
-    '<defs>' +
-      '<pattern id="bmGrid" width="18" height="18" patternUnits="userSpaceOnUse">' +
-        '<path d="M18 0H0V18" fill="none" stroke="rgba(90,169,255,0.08)" stroke-width="1"/>' +
-      '</pattern>' +
-      '<filter id="bmGlow" x="-60%" y="-60%" width="220%" height="220%">' +
-        '<feGaussianBlur stdDeviation="4" result="blur"/>' +
-        '<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>' +
-      '</filter>' +
-    '</defs>' +
-    '<rect x="0" y="0" width="200" height="380" rx="24" fill="url(#bmGrid)"/>' +
-    '<g class="bm-silhouette">' +
-      '<ellipse cx="100" cy="34" rx="24" ry="28"/>' +
-      '<path d="M77 58 Q100 48 123 58 L136 92 Q138 130 130 196 L126 224 L74 224 L70 196 Q62 130 64 92 Z"/>' +
-      '<path d="M77 92 Q48 98 34 178 L42 182 Q56 118 82 100 Z"/>' +
-      '<path d="M123 92 Q152 98 166 178 L158 182 Q144 118 118 100 Z"/>' +
-      '<path d="M74 224 Q56 268 60 346 L82 346 Q82 272 92 226 Z"/>' +
-      '<path d="M126 224 Q144 268 140 346 L118 346 Q118 272 108 226 Z"/>' +
-    '</g>' +
-    '<g filter="url(#bmGlow)">' +
-      '<line class="bm-spine" x1="100" y1="62" x2="100" y2="200" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 6"/>' +
-      '<path class="bm-zone bm-traps" d="M72 66 Q100 54 128 66" fill="none" stroke-width="4" stroke-linecap="round"/>' +
-      '<ellipse class="bm-zone bm-shoulders" cx="68" cy="86" rx="7" ry="9"/>' +
-      '<ellipse class="bm-zone bm-shoulders" cx="132" cy="86" rx="7" ry="9"/>' +
-      '<ellipse class="bm-zone bm-chest" cx="100" cy="106" rx="27" ry="32" fill="none" stroke-width="3"/>' +
-      '<path class="bm-zone bm-core" d="M78 142 Q100 150 122 142 L120 192 Q100 200 80 192 Z" stroke-width="2.5"/>' +
-      '<path class="bm-zone bm-hips" d="M76 198 Q100 212 124 198 L120 222 Q100 228 80 222 Z" stroke-width="2.5"/>' +
-      '<g class="bm-zone bm-arms">' +
-        '<line x1="68" y1="95" x2="46" y2="150" stroke-width="4" stroke-linecap="round"/>' +
-        '<line x1="46" y1="150" x2="38" y2="196" stroke-width="4" stroke-linecap="round"/>' +
-        '<line x1="132" y1="95" x2="154" y2="150" stroke-width="4" stroke-linecap="round"/>' +
-        '<line x1="154" y1="150" x2="162" y2="196" stroke-width="4" stroke-linecap="round"/>' +
-      '</g>' +
-      '<g class="bm-zone bm-legs">' +
-        '<line x1="88" y1="224" x2="80" y2="286" stroke-width="5" stroke-linecap="round"/>' +
-        '<line x1="80" y1="286" x2="76" y2="346" stroke-width="5" stroke-linecap="round"/>' +
-        '<line x1="112" y1="224" x2="120" y2="286" stroke-width="5" stroke-linecap="round"/>' +
-        '<line x1="120" y1="286" x2="124" y2="346" stroke-width="5" stroke-linecap="round"/>' +
-      '</g>' +
-      '<circle class="bm-joint" cx="68" cy="95" r="3"/>' +
-      '<circle class="bm-joint" cx="132" cy="95" r="3"/>' +
-      '<circle class="bm-joint" cx="46" cy="150" r="2.5"/>' +
-      '<circle class="bm-joint" cx="154" cy="150" r="2.5"/>' +
-      '<circle class="bm-joint" cx="88" cy="224" r="3"/>' +
-      '<circle class="bm-joint" cx="112" cy="224" r="3"/>' +
-      '<circle class="bm-joint" cx="80" cy="286" r="2.5"/>' +
-      '<circle class="bm-joint" cx="120" cy="286" r="2.5"/>' +
-      '<circle class="bm-head" cx="100" cy="34" r="9"/>' +
-    '</g>' +
-  '</svg>';
+const BODY_MAP_ASSET = 'assets/body-map.svg';
 
 function renderBodyMap(dayData){
   const zones = new Set();
@@ -1132,12 +1089,19 @@ function renderBodyMap(dayData){
     const z = GROUP_TO_BODYZONE[group];
     if(z) z.forEach(zz=>zones.add(zz));
   });
-  const temp = document.createElement('div');
-  temp.innerHTML = BODY_MAP_SVG;
-  zones.forEach(zClass=>{
-    temp.querySelectorAll('.'+zClass).forEach(el=>el.classList.add('hit'));
-  });
-  return '<div class="body-map-wrap">' + temp.innerHTML + '</div>';
+  const targets = Array.from(zones).map(zone=>
+    '<use class="bm-target-zone" href="' + BODY_MAP_ASSET + '#zone-' + zone + '" x="0" y="0" width="360" height="525"></use>'
+  ).join('');
+  return '<div class="body-map-wrap">' +
+    '<svg class="body-map" viewBox="0 0 360 525" role="img" aria-label="Front and back body diagram with workout target muscles highlighted in red">' +
+      '<use href="' + BODY_MAP_ASSET + '#body-base" x="0" y="0" width="360" height="525"></use>' +
+      targets +
+    '</svg>' +
+    '<div class="body-map-legend" aria-hidden="true">' +
+      '<span><i class="legend-blue"></i>Body &amp; skeleton</span>' +
+      '<span><i class="legend-red"></i>Workout targets</span>' +
+    '</div>' +
+  '</div>';
 }
 
 /* ---------- DAY OVERVIEW (specific auto-scheduled workout) ---------- */
