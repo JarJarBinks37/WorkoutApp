@@ -644,12 +644,13 @@ function getWorkoutWeekdayMap(startDow){
 
 // Bumping SCHEDULE_VERSION forces a one-time recompute of the stored start date below,
 // even for a browser that already cached an older anchor from before this change.
-const SCHEDULE_VERSION = 4;
+const SCHEDULE_VERSION = 5;
+const DEFAULT_PROGRAM_START = '2026-07-20';
 function getProgramStart(){
   const storedVersion = parseInt(localStorage.getItem('hiitScheduleVersion') || '0', 10);
   let s = localStorage.getItem('hiitProgramStart');
   if(!s || storedVersion < SCHEDULE_VERSION){
-    s = isoDate(new Date()); // Day 1 = today, whatever weekday that is
+    s = DEFAULT_PROGRAM_START;
     localStorage.setItem('hiitProgramStart', s);
     localStorage.setItem('hiitScheduleVersion', String(SCHEDULE_VERSION));
   }
